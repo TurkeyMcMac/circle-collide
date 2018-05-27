@@ -16,9 +16,6 @@ struct circle {
 	struct circle *next;
 	struct circle_info *info;
 	struct vec2d position, speed;
-	int health;
-	bool has_updated;
-	//NN_WEIGHTS_ARRAY(brain, 28, 26, 5);
 };
 
 #define LIST_FOR_EACH(list, item) \
