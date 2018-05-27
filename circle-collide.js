@@ -1,5 +1,5 @@
 function main(wasm) {
-	wasm.exports._init(50, Math.random() * 10000, 500, 500);
+	wasm.exports._init(400, Math.random() * 10000, 500, 500);
 	setInterval(function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		wasm.exports._step_circles();

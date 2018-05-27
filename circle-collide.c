@@ -281,9 +281,9 @@ static unsigned num_circles;
 static struct world *world;
 void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	static struct circle_info info;
-	info.radius = 9;
+	info.radius = 6.24;
 	info.mass = info.radius * info.radius;
-	world = world_new(20, 10, 50.0);
+	world = world_new(40, 20, 25.0);
 	seed_random(seed);
 	num_circles = nc;
 	while (nc--) {
@@ -642,7 +642,7 @@ void world_move_circles(struct world *self)
 
 void world_draw(struct world *self)
 {
-	unsigned i;
+/*	unsigned i;
 	for (i = 1; i <= self->width; ++i) {
 		jsDrawLine(
 			(float)i * self->tile_size,
@@ -658,7 +658,7 @@ void world_draw(struct world *self)
 			(float)self->width * self->tile_size,
 			(float)i * self->tile_size
 		);
-	}
+	}*/
 	for (unsigned y = 0; y <  self->height; ++y) {
 		for (unsigned x = 0; x < self->width; ++x) {
 			struct circle *c, **tile = world_get(self, x, y);
@@ -667,6 +667,7 @@ void world_draw(struct world *self)
 				            * self->tile_size;
 				float height = (float)self->height
 				            * self->tile_size;
+
 				c->position.x -= width;
 				c->position.y -= height;
 				circle_draw(c);
@@ -686,7 +687,7 @@ void world_draw(struct world *self)
 				circle_draw(c);
 				c->position.x += width;
 				circle_draw(c);
-	/*			jsDrawLine(
+		/*		jsDrawLine(
 					c->position.x,
 					c->position.y,
 					(float)x * self->tile_size,

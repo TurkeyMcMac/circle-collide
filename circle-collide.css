@@ -1,3 +1,10 @@
+body {
+	background-color: gray;
+}
+
 #circle-canvas {
-	background-color: lightgray;
+	background-color: white;
+	border-color: lightgray;
+	border-style: solid;
+	border-width: 3px;
 }
