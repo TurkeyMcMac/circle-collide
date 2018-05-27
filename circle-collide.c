@@ -1,11 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
-
-extern float asinf(float n);
-extern float sinf(float n);
-extern float cosf(float n);
-extern float sqrtf(float n);
-extern float fabsf(float n);
+#include <math.h>
 
 void *memset(void *_mem, int byte, unsigned len)
 {
