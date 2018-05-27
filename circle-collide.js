@@ -14,7 +14,7 @@ var imports = {
 		'tableBase': 0,
 		'memory': new WebAssembly.Memory({initial: 256}),
 		'table': new WebAssembly.Table({
-			initial: 32,
+			initial: 64,
 			element: 'anyfunc',
 		}),
 		'abort': function() {},
@@ -41,5 +41,5 @@ var imports = {
 		'_jsLogNum': console.log,
 	},
 };
-WebAssembly.instantiateStreaming(fetch("circle-collide.wasm"), imports)
+WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
 	.then(wa => main(wa.instance));

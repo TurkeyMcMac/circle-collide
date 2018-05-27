@@ -1,0 +1,1 @@
+void *ealloc(unsigned size);
