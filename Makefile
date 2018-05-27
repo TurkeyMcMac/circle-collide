@@ -7,11 +7,13 @@ wast-dest = $(patsubst %.wasm, %.wast, $(executable))
 object-files = $(patsubst src/%.c, .intermediate/%.o, $(wildcard src/*.c))
 dependencies = $(patsubst %.o, %.d, $(object-files))
 
-all: $(executable)
+all: $(wast-dest)
+
+$(wast-dest): $(executable)
+	wasm-dis $(executable) > $(wast-dest)
 
 $(executable): .intermediate $(object-files) 
 	$(CC) $(c-flags) -o $(executable) $(object-files)
-	wasm-dis $(executable) > $(wast-dest)
 
 .intermediate:
 	mkdir .intermediate
