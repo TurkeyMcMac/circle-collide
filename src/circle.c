@@ -15,11 +15,13 @@ static void bounce(struct circle *restrict self, struct circle *restrict other)
 		other->position.y - self->position.y
 	};
 	float angle = asinf(fabsf(from_center.x) / vec2d_length(&from_center));
+	vec2d_rotation_t rotation;
 	float self_y, other_y;
 	if (from_center.x * from_center.y < 0)
 		angle *= -1;
-	vec2d_rotate(&self->speed, angle);
-	vec2d_rotate(&other->speed, angle);
+	vec2d_rotation_get(&rotation, angle);
+	vec2d_apply_rotation(&self->speed, &rotation);
+	vec2d_apply_rotation(&other->speed, &rotation);
 	self_y = self->speed.y;
 	other_y = other->speed.y;
 	self->speed.y = (self->info->mass - other->info->mass)
@@ -30,8 +32,9 @@ static void bounce(struct circle *restrict self, struct circle *restrict other)
 	               / (self->info->mass + other->info->mass) * self_y
 	               + (other->info->mass - self->info->mass)
 	               / (self->info->mass + other->info->mass) * other_y;
-	vec2d_rotate(&self->speed, -angle);
-	vec2d_rotate(&other->speed, -angle);
+	vec2d_rotation_get(&rotation, -angle);
+	vec2d_apply_rotation(&self->speed, &rotation);
+	vec2d_apply_rotation(&other->speed, &rotation);
 }
 
 static void dont_overlap(struct circle *restrict self,
