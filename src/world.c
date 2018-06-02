@@ -293,7 +293,9 @@ void world_move_circles(struct world *self)
 
 void world_draw(struct world *self)
 {
-/*	unsigned i;
+	unsigned i;
+	(void)i;
+#ifdef SHOULD_DRAW_CELLS
 	for (i = 1; i <= self->width; ++i) {
 		jsDrawLine(
 			(float)i * self->tile_size,
@@ -309,7 +311,8 @@ void world_draw(struct world *self)
 			(float)self->width * self->tile_size,
 			(float)i * self->tile_size
 		);
-	}*/
+	}
+#endif /* defined SHOULD_DRAW_CELLS */
 	for (unsigned y = 0; y <  self->height; ++y) {
 		for (unsigned x = 0; x < self->width; ++x) {
 			struct circle *c, **tile = world_get(self, x, y);
@@ -338,12 +341,14 @@ void world_draw(struct world *self)
 				circle_draw(c);
 				c->position.x += width;
 				circle_draw(c);
-		/*		jsDrawLine(
+#ifdef SHOULD_DRAW_CELL_LINKS
+				jsDrawLine(
 					c->position.x,
 					c->position.y,
 					(float)x * self->tile_size,
 					(float)y * self->tile_size
-				);*/
+				);
+#endif /* defined SHOULD_DRAW_CELL_LINKS */
 			}
 		}
 	}
