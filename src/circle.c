@@ -5,7 +5,7 @@
 
 void circle_draw(const struct circle *self)
 {
-	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
+	self->info->draw(self);
 }
 
 static void bounce(struct circle *restrict self, struct circle *restrict other)

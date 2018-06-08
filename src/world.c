@@ -267,6 +267,7 @@ void world_move_circles(struct world *self)
 					c = c->next;
 					continue;
 				}
+				c->info->on_update(c);
 				struct circle *next = c->next;
 				c->position.x += c->speed.x;
 				c->position.y += c->speed.y;
@@ -321,7 +322,6 @@ void world_draw(struct world *self)
 				            * self->tile_size;
 				float height = (float)self->height
 				            * self->tile_size;
-
 				c->position.x -= width;
 				c->position.y -= height;
 				circle_draw(c);

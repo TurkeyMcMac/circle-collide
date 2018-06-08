@@ -1,29 +1,56 @@
+#include "agent.h"
 #include "circle.h"
 #include "ealloc.h"
+#include "js-routines.h"
 #include "memset.h"
 #include "neural-net.h"
 #include "random.h"
 #include "vec2d.h"
 #include "world.h"
 
-static const struct neural_net brain = {
-	.input = 28,
-	.hidden = 26,
-	.output = 5,
-};
+void bullet_draw(const struct circle *self)
+{
+	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
+}
+
+bool bullet_update(struct circle *self)
+{
+	return false;
+}
+
+struct circle_info agent_info;
+struct circle_info bullet_info;
 
 static unsigned num_circles;
 static struct world *world;
 void init(unsigned nc, unsigned seed, float world_x, float world_y) {
-	static struct circle_info info;
-	info.radius = 6.24;
-	info.mass = info.radius * info.radius;
+	agent_info.draw = agent_draw;
+	agent_info.on_update = agent_update;
+	agent_info.radius = 6.24;
+	agent_info.mass = agent_info.radius * agent_info.radius;
+	bullet_info.draw = bullet_draw;
+	bullet_info.on_update = bullet_update;
+	bullet_info.radius = 4.0;
+	bullet_info.mass = 16.0;
+	mind_proto.input = AGENT_N_INPUTS;
+	mind_proto.hidden = AGENT_N_HIDDEN;
+	mind_proto.output = AGENT_N_OUTPUTS;
 	world = world_new(40, 20, 25.0);
 	seed_random(seed);
 	num_circles = nc;
 	while (nc--) {
-		struct circle *c = ealloc(sizeof(*c));
-		c->info = &info;
+		struct circle *c;
+		if (random() & 3) {
+			struct agent *a = ealloc(sizeof(*a));
+			c = &a->c;
+			c->info = &agent_info;
+			a->direction = (float)(random() % 100) / 100;
+			neural_net_random(&mind_proto, a->mind);
+		}
+		else {
+			c = ealloc(sizeof(*c));
+			c->info = &bullet_info;
+		}
 		c->position.x = random() %
 			(unsigned)(world->width * world->tile_size);
 		c->position.y = random() %
@@ -31,7 +58,6 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 		c->speed.x = ((float)(random() % 2000) - 1000.0) / 300.0;
 		c->speed.y = ((float)(random() % 2000) - 1000.0) / 300.0;
 		world_put(world, c);
-		circle_draw(c);
 	}
 }
 

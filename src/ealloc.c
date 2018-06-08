@@ -1,6 +1,6 @@
 #include "ealloc.h"
 
-static void *next_block_start = (void *)64;
+static void *next_block_start = (void *)1024;
 
 void *ealloc(unsigned size)
 {

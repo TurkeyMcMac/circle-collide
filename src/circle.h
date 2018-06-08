@@ -9,7 +9,8 @@
 struct circle;
 struct circle_info {
 	float radius, mass;
-	bool (*update)(struct circle *self);
+	bool (*on_update)(struct circle *self);
+	void (*draw)(const struct circle *self);
 };
 
 struct circle {
