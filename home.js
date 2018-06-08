@@ -35,7 +35,8 @@ var imports = {
 		},
 		'_jsDrawCircle': function(x, y, radius) {
 			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+			ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI,
+				false);
 			ctx.stroke();
 		},
 		'_jsDrawLine': function(x1, y1, x2, y2) {
