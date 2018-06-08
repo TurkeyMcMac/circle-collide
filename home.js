@@ -1,4 +1,4 @@
-var population = 100;
+var population = 50;
 
 function main(wasm) {
 	wasm.exports._init(population, Math.random() * 10000, 500, 500);
