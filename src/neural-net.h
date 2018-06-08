@@ -8,12 +8,14 @@ struct neural_net {
 
 typedef unsigned long nn_bitset;
 
+void neural_net_random(const struct neural_net *self, signed char *weights);
+
 nn_bitset neural_net_compute(const struct neural_net *self,
 	const signed char *weights,
 	nn_bitset in_bits);
 
 #define NN_WEIGHTS_NUM(input, hidden, output) \
-	((hidden) * (input) + (output) * (hidden))
+	((hidden) * (input + 1) + (output) * (hidden + 1))
 #define NN_WEIGHTS_ARRAY(array, input, hidden, output) \
 	signed char array[NN_WEIGHTS_NUM((input), (hidden), (output))]
 
