@@ -1,10 +1,16 @@
 body {
-	background-color: gray;
+	background-color: #eaeaff;
+}
+
+p {
+	color: #00002f;
+	font-family: monospace;
+	font-size: 15px;
 }
 
 #circle-canvas {
-	background-color: white;
-	border-color: lightgray;
+	background-color: lightblue;
+	border-color: #a0a0bf;
 	border-style: solid;
 	border-width: 3px;
 }
