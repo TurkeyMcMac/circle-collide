@@ -44,7 +44,7 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 			struct agent *a = ealloc(sizeof(*a));
 			c = &a->c;
 			c->info = &agent_info;
-			a->direction = (float)(random() % 100) / 100;
+			a->direction = frandom() * 6.28;
 			neural_net_random(&mind_proto, a->mind);
 		}
 		else {
@@ -55,8 +55,8 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 			(unsigned)(world->width * world->tile_size);
 		c->position.y = random() %
 			(unsigned)(world->height * world->tile_size);
-		c->speed.x = ((float)(random() % 2000) - 1000.0) / 300.0;
-		c->speed.y = ((float)(random() % 2000) - 1000.0) / 300.0;
+		c->speed.x = frandom() * 2.0 - 1.0;
+		c->speed.y = frandom() * 2.0 - 1.0;
 		world_put(world, c);
 	}
 }
