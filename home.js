@@ -24,12 +24,14 @@ var imports = {
 			element: 'anyfunc',
 		}),
 		'abort': function() {},
+		'_acosf': Math.acos,
 		'_asinf': Math.asin,
+		'_atanf': Math.atan,
 		'_cosf': Math.cos,
 		'_fabsf': Math.abs,
 		'_sinf': Math.sin,
 		'_sqrtf': Math.sqrt,
-		'_fabsf': Math.abs,
+		'_tanf': Math.tan,
 		'_test_extern': function() {
 			console.log("Extern function has been tested.");
 		},
