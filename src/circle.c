@@ -8,16 +8,19 @@ void circle_draw(const struct circle *self)
 	self->info->draw(self);
 }
 
-static void bounce(struct circle *restrict self, struct circle *restrict other)
+static void bounce(struct circle *restrict self,
+	struct circle *restrict other,
+	float dist)
 {
 	struct vec2d from_center = {
 		other->position.x - self->position.x,
 		other->position.y - self->position.y
 	};
-	float angle = asinf(fabsf(from_center.x) / vec2d_length(&from_center));
 	vec2d_rotation_t rotation;
 	float self_y, other_y;
-	if (from_center.x * from_center.y < 0)
+	float angle;
+	angle = asinf(from_center.x / dist);
+	if (from_center.y < 0)
 		angle *= -1;
 	vec2d_rotation_get(&rotation, angle);
 	vec2d_apply_rotation(&self->speed, &rotation);
@@ -66,8 +69,9 @@ float circle_collide(struct circle *restrict self,
 	};
 	float dist;
 	if (diff.x <= touch_dist && diff.y < touch_dist
-	 && (dist = vec2d_length(&diff)) < touch_dist) {
-		bounce(self, other);
+	 && (dist = vec2d_length(&diff)) < touch_dist
+	 && dist > 0.0) {
+		bounce(self, other, dist);
 		return dist;
 	} else
 		return -1.0; /* Indicates collision; negative distances don't
