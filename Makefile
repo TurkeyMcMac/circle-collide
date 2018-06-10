@@ -1,5 +1,5 @@
 executable = main.wasm
-c-flags = $(CFLAGS) -O3 -s WASM=1 -s SIDE_MODULE=1 -s BINARYEN_TRAP_MODE=clamp
+c-flags = $(CFLAGS) -O3 -Wall -s WASM=1 -s SIDE_MODULE=1 -s BINARYEN_TRAP_MODE=clamp
 CC=emcc
 
 object-files = $(patsubst src/%.c, .intermediate/%.o, $(wildcard src/*.c))

@@ -206,7 +206,6 @@ void world_update_right(struct world *self)
 void world_update_bottom_left(struct world *self)
 {
 	unsigned bottom = self->height - 1;
-	struct circle **t = world_get(self, 0, bottom);
 	world_update_tile_with_itself(self, 0, bottom);
 	world_update_tiles(self, 0, bottom, 1, bottom);
 	tile_wrap_y(world_get(self, 0, bottom), self);

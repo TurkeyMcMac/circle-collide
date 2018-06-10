@@ -30,7 +30,7 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	agent_info.mass = agent_info.radius * agent_info.radius;
 	bullet_info.draw = bullet_draw;
 	bullet_info.on_update = bullet_update;
-	bullet_info.radius = 4.0;
+	bullet_info.radius = 9.0;
 	bullet_info.mass = 16.0;
 	mind_proto.input = AGENT_N_INPUTS;
 	mind_proto.hidden = AGENT_N_HIDDEN;
@@ -38,27 +38,30 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	world = world_new(40, 20, 25.0);
 	seed_random(seed);
 	num_circles = nc;
+	struct circle *c;
 	while (nc--) {
-		struct circle *c;
-		if (random() & 3) {
-			struct agent *a = ealloc(sizeof(*a));
-			c = &a->c;
-			c->info = &agent_info;
-			a->direction = frandom() * 6.28;
-			neural_net_random(&mind_proto, a->mind);
-		}
-		else {
-			c = ealloc(sizeof(*c));
-			c->info = &bullet_info;
-		}
-		c->position.x = random() %
-			(unsigned)(world->width * world->tile_size);
-		c->position.y = random() %
-			(unsigned)(world->height * world->tile_size);
-		c->speed.x = frandom() * 2.0 - 1.0;
-		c->speed.y = frandom() * 2.0 - 1.0;
+		c = ealloc(sizeof(*c));
+		c->info = &bullet_info;
+		c->position.x = 50.0 + (float)nc * (bullet_info.radius * 2 + 1);
+		c->position.y = 200.0;
+		c->speed.x = 0.0;
+		c->speed.y = 0.0;
 		world_put(world, c);
 	}
+	c = ealloc(sizeof(*c));
+	c->info = &bullet_info;
+	c->position.x = 0.0;
+	c->position.y = 200.0;
+	c->speed.x = 3.0;
+	c->speed.y = 0.0;
+	world_put(world, c);
+	c = ealloc(sizeof(*c));
+	c->info = &bullet_info;
+	c->position.x = 500.0;
+	c->position.y = 0.0;
+	c->speed.x = 0.0;
+	c->speed.y = 0.2;
+	world_put(world, c);
 }
 
 void step_circles(void)
