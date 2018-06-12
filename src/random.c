@@ -5,7 +5,7 @@ static unsigned random_state;
 
 void seed_random(unsigned seed)
 {
-       random_state = seed;
+       random_state ^= seed;
 }
 
 static unsigned rotright(unsigned rot, unsigned amount)
