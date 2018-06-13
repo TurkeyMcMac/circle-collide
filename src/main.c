@@ -2,6 +2,7 @@
 #include "circle.h"
 #include "ealloc.h"
 #include "js-routines.h"
+#include "math.h"
 #include "memset.h"
 #include "neural-net.h"
 #include "random.h"
@@ -44,7 +45,7 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 			struct agent *a = ealloc(sizeof(*a));
 			c = &a->c;
 			c->info = &agent_info;
-			a->direction = frandom() * 6.28;
+			a->direction = frandom() * 2 * PI;
 			neural_net_random(&mind_proto, a->mind);
 		}
 		else {

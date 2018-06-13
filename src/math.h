@@ -13,3 +13,5 @@ extern float sinf(float);
 extern float sqrtf(float);
 
 extern float tanf(float);
+
+#define PI 3.141592
