@@ -15,7 +15,7 @@ nn_bitset neural_net_compute(const struct neural_net *self,
 	nn_bitset in_bits);
 
 #define NN_WEIGHTS_NUM(input, hidden, output) \
-	((hidden) * (input + 1) + (output) * (hidden + 1))
+	((hidden) * ((input) + 1) + (output) * ((hidden) + 1))
 #define NN_WEIGHTS_ARRAY(array, input, hidden, output) \
 	signed char array[NN_WEIGHTS_NUM((input), (hidden), (output))]
 
