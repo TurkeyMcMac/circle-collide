@@ -13,6 +13,7 @@ document.getElementById("circle-population").innerHTML =
 
 var canvas = document.getElementById('circle-canvas');
 var ctx = canvas.getContext('2d');
+ctx.strokeStyle = '#00003f';
 
 var imports = {
 	'env': {
