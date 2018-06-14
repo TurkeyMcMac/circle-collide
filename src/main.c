@@ -14,7 +14,7 @@ void bullet_draw(const struct circle *self)
 	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
 }
 
-bool bullet_update(struct circle *self)
+bool bullet_update(struct circle *self, struct world *w)
 {
 	return false;
 }
@@ -39,6 +39,7 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	world = world_new(40, 20, 25.0);
 	seed_random(seed);
 	num_circles = nc;
+	agent_init_sensor_protos(120.0);
 	while (nc--) {
 		struct circle *c;
 		if (random() & 3) {

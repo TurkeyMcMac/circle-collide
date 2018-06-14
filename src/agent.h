@@ -38,6 +38,8 @@ struct agent_manager {
 
 void agent_draw(const struct circle *circ);
 
-bool agent_update(struct circle *circ);
+bool agent_update(struct circle *circ, struct world *w);
+
+void agent_init_sensor_protos(float range);
 
 #endif /* Header guard */

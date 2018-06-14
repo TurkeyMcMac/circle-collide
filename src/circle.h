@@ -6,10 +6,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+struct world;
+
 struct circle;
 struct circle_info {
 	float radius, mass;
-	bool (*on_update)(struct circle *self);
+	bool (*on_update)(struct circle *self, struct world *w);
 	void (*draw)(const struct circle *self);
 };
 
@@ -34,8 +36,6 @@ bool circle_is_updated(const struct circle *self);
 void circle_set_updated(struct circle *self);
 
 void circle_finish_update(struct circle *self);
-
-struct world;
 
 void circle_wrap_position(struct circle *self, const struct world *w);
 
