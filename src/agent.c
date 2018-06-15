@@ -43,9 +43,9 @@ void agent_init_sensor_protos(float range)
 static void move_agent(struct agent *a, nn_bitset orders)
 {
 	if (orders & AGENT_OUT_LEFT)
-		a->direction += 0.1;
+		a->direction += 0.04;
 	if (orders & AGENT_OUT_RIGHT)
-		a->direction -= 0.1;
+		a->direction -= 0.04;
 	if (orders & AGENT_OUT_THRUST) {
 		vec2d_rotation_t rotation;
 		struct vec2d thrust = { 0.05, 0};

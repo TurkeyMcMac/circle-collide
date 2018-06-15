@@ -43,15 +43,15 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	while (nc--) {
 		struct circle *c;
 		if (random() & 3) {
+			c = ealloc(sizeof(*c));
+			c->info = &bullet_info;
+		}
+		else {
 			struct agent *a = ealloc(sizeof(*a));
 			c = &a->c;
 			c->info = &agent_info;
 			a->direction = frandom() * 2 * PI;
 			neural_net_random(&mind_proto, a->mind);
-		}
-		else {
-			c = ealloc(sizeof(*c));
-			c->info = &bullet_info;
 		}
 		c->position.x = random() %
 			(unsigned)(world->width * world->tile_size);
