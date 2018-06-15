@@ -266,7 +266,7 @@ void world_move_circles(struct world *self)
 					c = c->next;
 					continue;
 				}
-				c->info->on_update(c, self);
+				c->info->on_update(c, self, x, y);
 				struct circle *next = c->next;
 				c->position.x += c->speed.x;
 				c->position.y += c->speed.y;

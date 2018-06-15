@@ -11,7 +11,9 @@ struct world;
 struct circle;
 struct circle_info {
 	float radius, mass;
-	bool (*on_update)(struct circle *self, struct world *w);
+	bool (*on_update)(struct circle *self,
+		struct world *w,
+		unsigned x, unsigned y);
 	void (*draw)(const struct circle *self);
 };
 

@@ -14,7 +14,7 @@ void bullet_draw(const struct circle *self)
 	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
 }
 
-bool bullet_update(struct circle *self, struct world *w)
+bool bullet_update(struct circle *self, struct world *w, unsigned x, unsigned y)
 {
 	return false;
 }

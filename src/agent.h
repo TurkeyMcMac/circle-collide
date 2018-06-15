@@ -16,6 +16,7 @@
 
 struct agent {
 	struct circle c;
+	nn_bitset senses;
 	float direction;
 	int health;
 	unsigned score;
@@ -38,7 +39,7 @@ struct agent_manager {
 
 void agent_draw(const struct circle *circ);
 
-bool agent_update(struct circle *circ, struct world *w);
+bool agent_update(struct circle *circ, struct world *w, unsigned x, unsigned y);
 
 void agent_init_sensor_protos(float range);
 

@@ -1,19 +1,29 @@
 #include "agent.h"
 #include "container-of.h"
+#include "intersector.h"
 #include "js-routines.h"
 #include "math.h"
-#include "vec2d.h"
 #include "random.h"
+#include "vec2d.h"
+#include "world.h"
 
 static struct vec2d sensor_protos[AGENT_N_INPUTS];
 
 void agent_draw(const struct circle *circ)
 {
 	const struct agent *self = container_of(circ, struct agent, c);
+	struct vec2d face = {circ->info->radius, 0};
 	vec2d_rotation_t rot;
 	vec2d_rotation_get(&rot, self->direction);
+	vec2d_apply_rotation(&face, &rot);
+	face.x += circ->position.x;
+	face.y += circ->position.y;
+	jsDrawLine(circ->position.x, circ->position.y, face.x, face.y);
 	for (unsigned i = 0; i < AGENT_N_INPUTS; ++i) {
-		struct vec2d sensor = sensor_protos[i];
+		struct vec2d sensor;
+		if ((self->senses & (1 << i)) == 0)
+			continue;
+		sensor = sensor_protos[i];
 		vec2d_apply_rotation(&sensor, &rot);
 		sensor.x += self->c.position.x;
 		sensor.y += self->c.position.y;
@@ -56,16 +66,54 @@ static void move_agent(struct agent *a, nn_bitset orders)
 	}
 }
 
-static nn_bitset get_sensors(const struct agent *self, const struct world *w)
+static nn_bitset test_sensor(const intersector_t *s,
+	const struct circle *ignore,
+	struct world *w,
+	unsigned x, unsigned y)
 {
-	nn_bitset senses = random();
+	/*TODO:
+	 * Very inefficient (checks every tile every time).
+	 * Doesn't handle wrapping around the torus.
+	 * */
+	for (y = 0; y < w->height; ++y) {
+		for (x = 0; x < w->width; ++x) {
+			struct circle **tile = world_get(w, x, y);
+			const struct circle *c;
+			LIST_FOR_EACH(tile, c) {
+				if (c == ignore)
+					continue;
+				if (intersects(s, c))
+					return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+static nn_bitset get_sensors(const struct agent *self,
+	struct world *w,
+	unsigned x, unsigned y)
+{
+	nn_bitset senses = 0;
+	vec2d_rotation_t rot;
+	vec2d_rotation_get(&rot, self->direction);
+	for (unsigned i = 0; i < AGENT_N_INPUTS; ++i) {
+		struct vec2d shape = sensor_protos[i];
+		intersector_t s;
+		vec2d_apply_rotation(&shape, &rot);
+		intersector_init(&s, &self->c.position, &shape);
+		senses |= test_sensor(&s, &self->c, w, x, y) << i;
+	}
 	return senses;
 }
 
-bool agent_update(struct circle *circ, struct world *w)
+bool agent_update(struct circle *circ,
+	struct world *w,
+	unsigned x, unsigned y)
 {
 	struct agent *self = container_of(circ, struct agent, c);
-	nn_bitset in = get_sensors(self, w);
+	nn_bitset in = get_sensors(self, w, x, y);
+	self->senses = in;
 	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
 	move_agent(self, out);
 	circ->speed.x *= 0.995;
