@@ -66,31 +66,127 @@ static void move_agent(struct agent *a, nn_bitset orders)
 	}
 }
 
-static nn_bitset test_sensor(const intersector_t *s,
-	const struct circle *circ,
-	struct world *w,
-	unsigned x, unsigned y)
+static void find_sensor_sectors_positive(pos, len,
+	tilesize, n_tiles,
+	start, midlen, wraplen)
+float pos, len, tilesize;
+unsigned n_tiles, *start, *midlen, *wraplen;
 {
-	/*TODO:
-	 * Very inefficient (checks every tile every time).
-	 * Doesn't handle wrapping around the torus.
-	 * */
-	for (y = 0; y < w->height; ++y) {
-		for (x = 0; x < w->width; ++x) {
-			struct circle **tile = world_get(w, x, y);
-			const struct circle *c;
+	if (*start > 0)
+		--*start;
+	else
+		*start = n_tiles - 1;
+	unsigned n_sectors = len / tilesize;
+	n_sectors += 2;
+	unsigned maximum = *start + n_sectors;
+	if (maximum <= n_tiles) {
+		*midlen = n_sectors;
+		*wraplen = 0;
+	} else {
+		*midlen = n_tiles - *start;
+		*wraplen = maximum - n_tiles;
+	}
+}
+
+static void find_sensor_sectors_negative(pos, len,
+	tilesize, n_tiles,
+	start, midlen, wraplen)
+float pos, len, tilesize;
+unsigned n_tiles, *start, *midlen, *wraplen;
+{
+	unsigned n_sectors = -len / tilesize;
+	++n_sectors;
+	*start -= n_sectors;
+	++n_sectors;
+	if (*start > n_tiles) {
+		// Wrapped around
+		*start += n_tiles;
+		*midlen = n_tiles - *start;
+		*wraplen = n_sectors - *midlen;
+	} else {
+		*midlen = n_sectors;
+		*wraplen = 0;
+	}
+}
+
+static void find_sensor_sectors(pos, shape, w, x, y, mw, mh, ww, wh)
+const struct vec2d *pos, *shape;
+const struct world *w;
+unsigned *x, *y, *mw, *mh, *ww, *wh;
+{
+	(shape->x > 0.0
+		? find_sensor_sectors_positive
+		: find_sensor_sectors_negative
+	)(pos->x, shape->x, w->tile_size, w->width, x, mw, ww);
+	(shape->y > 0.0
+		? find_sensor_sectors_positive
+		: find_sensor_sectors_negative
+	)(pos->y, shape->y, w->tile_size, w->height, y, mh, wh);
+}
+
+static bool test_sensor_area(self, sensor, w, x, y, width, height)
+const struct agent *self;
+const intersector_t *sensor;
+struct world *w;
+unsigned x, y, width, height;
+{
+	unsigned endx = x + width;
+	unsigned endy = y + height;
+	for(unsigned iy = y; iy < endy; ++iy) {
+		for (unsigned ix = x; ix < endx; ++ix) {
+			struct circle *c, **tile = world_get(w, ix, iy);
 			LIST_FOR_EACH(tile, c) {
-				if (c == circ)
-					continue;
-				if (intersects(s, &circ->position, c))
-					return 1;
+				/* TODO: This exclusion of self is an
+				 * unnecessary check most of the time. */
+				if (c != &self->c
+				 && intersects(sensor, &self->c.position, c))
+					return true;
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
-static nn_bitset get_sensors(const struct agent *self,
+static nn_bitset test_sensor(struct agent *self,
+	const struct vec2d *shape,
+	struct world *w,
+	unsigned x, unsigned y)
+{
+	// Middle width, middle height, wrapped with, wrapped height
+	unsigned mw, mh, ww, wh;
+	intersector_t sensor;
+	nn_bitset ret = 0;
+	find_sensor_sectors(&self->c.position, shape, w,
+		&x, &y, &mw, &mh, &ww, &wh);
+	intersector_init(&sensor, shape);
+#	define TEST_SENSOR_AREA(x, y, width, height, cleanup) do {	\
+		bool sensor_touched_ = test_sensor_area(self,		\
+			&sensor, 					\
+			w,						\
+			(x), (y), (width), (height));			\
+		if (sensor_touched_) {					\
+			cleanup						\
+		}							\
+	} while (0)
+	TEST_SENSOR_AREA(x, y, mw, mh, goto done; );
+	self->c.position.x -= (float)w->width * w->tile_size;
+	TEST_SENSOR_AREA(0, y, ww, mh, goto clean_wrap_x; );
+	self->c.position.y -= (float)w->height * w->tile_size;
+	TEST_SENSOR_AREA(0, 0, ww, wh, goto clean_wrap_xy; );
+	self->c.position.x += (float)w->width * w->tile_size;
+	TEST_SENSOR_AREA(x, 0, mw, wh, ret = 1; );
+	self->c.position.y += (float)w->height * w->tile_size;
+	return ret;
+
+clean_wrap_xy:
+	self->c.position.y += (float)w->height * w->tile_size;
+clean_wrap_x:
+	self->c.position.x += (float)w->width * w->tile_size;
+done:
+	return 1;
+}
+
+static nn_bitset test_sensors(struct agent *self,
 	struct world *w,
 	unsigned x, unsigned y)
 {
@@ -99,10 +195,8 @@ static nn_bitset get_sensors(const struct agent *self,
 	vec2d_rotation_get(&rot, self->direction);
 	for (unsigned i = 0; i < AGENT_N_INPUTS; ++i) {
 		struct vec2d shape = sensor_protos[i];
-		intersector_t s;
 		vec2d_apply_rotation(&shape, &rot);
-		intersector_init(&s, &shape);
-		senses |= test_sensor(&s, &self->c, w, x, y) << i;
+		senses |= test_sensor(self, &shape, w, x, y) << i;
 	}
 	return senses;
 }
@@ -112,7 +206,7 @@ bool agent_update(struct circle *circ,
 	unsigned x, unsigned y)
 {
 	struct agent *self = container_of(circ, struct agent, c);
-	nn_bitset in = get_sensors(self, w, x, y);
+	nn_bitset in = test_sensors(self, w, x, y);
 	self->senses = in;
 	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
 	move_agent(self, out);
