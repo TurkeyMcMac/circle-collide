@@ -67,7 +67,7 @@ static void move_agent(struct agent *a, nn_bitset orders)
 }
 
 static nn_bitset test_sensor(const intersector_t *s,
-	const struct circle *ignore,
+	const struct circle *circ,
 	struct world *w,
 	unsigned x, unsigned y)
 {
@@ -80,9 +80,9 @@ static nn_bitset test_sensor(const intersector_t *s,
 			struct circle **tile = world_get(w, x, y);
 			const struct circle *c;
 			LIST_FOR_EACH(tile, c) {
-				if (c == ignore)
+				if (c == circ)
 					continue;
-				if (intersects(s, c))
+				if (intersects(s, &circ->position, c))
 					return 1;
 			}
 		}
@@ -101,7 +101,7 @@ static nn_bitset get_sensors(const struct agent *self,
 		struct vec2d shape = sensor_protos[i];
 		intersector_t s;
 		vec2d_apply_rotation(&shape, &rot);
-		intersector_init(&s, &self->c.position, &shape);
+		intersector_init(&s, &shape);
 		senses |= test_sensor(&s, &self->c, w, x, y) << i;
 	}
 	return senses;
