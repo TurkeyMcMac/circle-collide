@@ -72,10 +72,6 @@ static void find_sensor_sectors_positive(pos, len,
 float pos, len, tilesize;
 unsigned n_tiles, *start, *midlen, *wraplen;
 {
-	if (*start > 0)
-		--*start;
-	else
-		*start = n_tiles - 1;
 	unsigned n_sectors = len / tilesize;
 	n_sectors += 2;
 	unsigned maximum = *start + n_sectors;
@@ -97,7 +93,6 @@ unsigned n_tiles, *start, *midlen, *wraplen;
 	unsigned n_sectors = -len / tilesize;
 	++n_sectors;
 	*start -= n_sectors;
-	++n_sectors;
 	if (*start > n_tiles) {
 		// Wrapped around
 		*start += n_tiles;
