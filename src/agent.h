@@ -5,7 +5,7 @@
 #include "circle.h"
 #include "neural-net.h"
 
-#define AGENT_N_MEM_BITS 8
+#define AGENT_N_MEM_BITS 5
 #define AGENT_N_SENSORS 27
 
 #define AGENT_N_INPUTS  (AGENT_N_MEM_BITS + AGENT_N_SENSORS)
