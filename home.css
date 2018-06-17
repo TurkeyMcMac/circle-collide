@@ -2,7 +2,7 @@ body {
 	background-color: #eaeaff;
 }
 
-p {
+p, input {
 	color: #00002f;
 	font-family: monospace;
 	font-size: 15px;
@@ -13,4 +13,9 @@ p {
 	border-color: #a0a0bf;
 	border-style: solid;
 	border-width: 3px;
+}
+
+#circle-population {
+	width: 50px;
+	background-color: lightblue;
 }

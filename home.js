@@ -1,22 +1,26 @@
-var canvas, ctx;
+const KEYCODE_ENTER = 13;
 
+var canvas, ctx;
+var wasm;
 var worldWidth = 40;
 var worldHeight = 20;
 var tileSize;
-var population = 50;
+var initialPopulation = 50;
 
-function main(wasm) {
-	wasm.exports._seed_random(Math.random() * 10000);
-	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
-	wasm.exports._populate_world(population);
+function main(w) {
+	initializeWorld(initialPopulation);
 	setInterval(function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		wasm.exports._step_circles();
 	}, 50);
 }
 
-document.getElementById("circle-population").innerHTML =
-	"population: " + population;
+function initializeWorld(population) {
+	wasm.exports._seed_random(Math.random() * 10000);
+	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
+	wasm.exports._populate_world(population);
+}
+
 canvas = document.getElementById('circle-canvas');
 tileSize = Math.min(canvas.width / worldWidth, canvas.height / worldHeight);
 ctx = canvas.getContext('2d');
@@ -59,4 +63,15 @@ var imports = {
 	},
 };
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
-	.then(wa => main(wa.instance));
+	.then(function(wa) {
+		wasm = wa.instance;
+		main(wa.instance);
+	});
+
+var populationBox = document.getElementById("circle-population");
+populationBox.value = initialPopulation;
+populationBox.addEventListener("keyup", function(e) {
+	if (e.keyCode === KEYCODE_ENTER) {
+		initializeWorld(populationBox.valueAsNumber);
+	}
+});
