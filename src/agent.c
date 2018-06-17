@@ -7,7 +7,7 @@
 #include "vec2d.h"
 #include "world.h"
 
-static struct vec2d sensor_protos[AGENT_N_INPUTS];
+static struct vec2d sensor_protos[AGENT_N_SENSORS];
 
 void agent_draw(const struct circle *circ)
 {
@@ -19,9 +19,10 @@ void agent_draw(const struct circle *circ)
 	face.x += circ->position.x;
 	face.y += circ->position.y;
 	jsDrawLine(circ->position.x, circ->position.y, face.x, face.y);
-	for (unsigned i = 0; i < AGENT_N_INPUTS; ++i) {
+	nn_bitset sensors = self->senses >> AGENT_N_MEM_BITS;
+	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
 		struct vec2d sensor;
-		if ((self->senses & (1 << i)) == 0)
+		if ((sensors & (1 << i)) == 0)
 			continue;
 		sensor = sensor_protos[i];
 		vec2d_apply_rotation(&sensor, &rot);
@@ -39,11 +40,11 @@ struct neural_net mind_proto;
 
 void agent_init_sensor_protos(float range)
 {
-	unsigned i = AGENT_N_INPUTS - 1;
+	unsigned i = AGENT_N_SENSORS - 1;
 	static vec2d_rotation_t rot;
 	sensor_protos[i].x = 0;
 	sensor_protos[i].y = range;
-	vec2d_rotation_get(&rot, -PI / (float)AGENT_N_INPUTS);
+	vec2d_rotation_get(&rot, -PI / (float)AGENT_N_SENSORS);
 	while (i--) {
 		sensor_protos[i] = sensor_protos[i + 1];
 		vec2d_apply_rotation(sensor_protos + i, &rot);
@@ -188,7 +189,7 @@ static nn_bitset test_sensors(struct agent *self,
 	nn_bitset senses = 0;
 	vec2d_rotation_t rot;
 	vec2d_rotation_get(&rot, self->direction);
-	for (unsigned i = 0; i < AGENT_N_INPUTS; ++i) {
+	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
 		struct vec2d shape = sensor_protos[i];
 		vec2d_apply_rotation(&shape, &rot);
 		senses |= test_sensor(self, &shape, w, x, y) << i;
@@ -202,9 +203,12 @@ bool agent_update(struct circle *circ,
 {
 	struct agent *self = container_of(circ, struct agent, c);
 	nn_bitset in = test_sensors(self, w, x, y);
+	in <<= AGENT_N_MEM_BITS;
+	in |= self->mem;
 	self->senses = in;
 	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
 	move_agent(self, out);
+	self->mem = out & AGENT_MEM_MASK;
 	circ->speed.x *= 0.995;
 	circ->speed.y *= 0.995;
 	return false;

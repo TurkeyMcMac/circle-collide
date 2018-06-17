@@ -5,14 +5,18 @@
 #include "circle.h"
 #include "neural-net.h"
 
-#define AGENT_N_INPUTS 27
-#define AGENT_N_HIDDEN 26
-#define AGENT_N_OUTPUTS 4
+#define AGENT_N_MEM_BITS 8
+#define AGENT_N_SENSORS 27
 
-#define AGENT_OUT_THRUST  ( 1 << 0 )
-#define AGENT_OUT_LEFT    ( 1 << 1 )
-#define AGENT_OUT_RIGHT   ( 1 << 2 )
-#define AGENT_OUT_SHOOT   ( 1 << 3 )
+#define AGENT_N_INPUTS  (AGENT_N_MEM_BITS + AGENT_N_SENSORS)
+#define AGENT_N_HIDDEN  (AGENT_N_INPUTS - 1)
+#define AGENT_N_OUTPUTS (AGENT_N_MEM_BITS + 4)
+
+#define AGENT_MEM_MASK ( (1 << AGENT_N_MEM_BITS) - 1 )
+#define AGENT_OUT_THRUST  ( 1 << (AGENT_N_MEM_BITS + 0) )
+#define AGENT_OUT_LEFT    ( 1 << (AGENT_N_MEM_BITS + 1) )
+#define AGENT_OUT_RIGHT   ( 1 << (AGENT_N_MEM_BITS + 2) )
+#define AGENT_OUT_SHOOT   ( 1 << (AGENT_N_MEM_BITS + 3) )
 
 struct agent {
 	struct circle c;
@@ -20,6 +24,7 @@ struct agent {
 	float direction;
 	int health;
 	unsigned score;
+	unsigned char mem;
 	NN_WEIGHTS_ARRAY(mind, AGENT_N_INPUTS, AGENT_N_HIDDEN, AGENT_N_OUTPUTS);
 };
 
