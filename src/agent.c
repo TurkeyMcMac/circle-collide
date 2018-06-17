@@ -19,10 +19,9 @@ void agent_draw(const struct circle *circ)
 	face.x += circ->position.x;
 	face.y += circ->position.y;
 	jsDrawLine(circ->position.x, circ->position.y, face.x, face.y);
-	nn_bitset sensors = self->senses >> AGENT_N_MEM_BITS;
 	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
 		struct vec2d sensor;
-		if ((sensors & (1 << i)) == 0)
+		if ((self->senses & (1 << i)) == 0)
 			continue;
 		sensor = sensor_protos[i];
 		vec2d_apply_rotation(&sensor, &rot);
@@ -203,9 +202,9 @@ bool agent_update(struct circle *circ,
 {
 	struct agent *self = container_of(circ, struct agent, c);
 	nn_bitset in = test_sensors(self, w, x, y);
+	self->senses = in;
 	in <<= AGENT_N_MEM_BITS;
 	in |= self->mem;
-	self->senses = in;
 	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
 	move_agent(self, out);
 	self->mem = out & AGENT_MEM_MASK;
