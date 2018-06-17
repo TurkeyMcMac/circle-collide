@@ -266,7 +266,12 @@ void world_move_circles(struct world *self)
 					c = c->next;
 					continue;
 				}
-				c->info->on_update(c, self, x, y);
+				if (c->info->on_update(c, self, x, y)) {
+					// Circle asks to be removed
+					*tile = c->next;
+					c = c->next;
+					continue;
+				}
 				struct circle *next = c->next;
 				c->position.x += c->speed.x;
 				c->position.y += c->speed.y;

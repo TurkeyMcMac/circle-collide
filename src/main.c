@@ -1,5 +1,6 @@
 #include "agent.h"
 #include "circle.h"
+#include "container-of.h"
 #include "ealloc.h"
 #include "js-routines.h"
 #include "math.h"
@@ -14,8 +15,9 @@ void bullet_draw(const struct circle *self)
 	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
 }
 
-bool bullet_update(struct circle *self, struct world *w, unsigned x, unsigned y)
+bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
 {
+	return container_of(circ, struct bullet, c)->health-- <= 0;
 	return false;
 }
 
@@ -43,7 +45,9 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	while (nc--) {
 		struct circle *c;
 		if (random() & 3) {
-			c = ealloc(sizeof(*c));
+			struct bullet *b = ealloc(sizeof(*b));
+			b->health = 100;
+			c = &b->c;
 			c->info = &bullet_info;
 		}
 		else {
