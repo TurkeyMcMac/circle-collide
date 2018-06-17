@@ -27,6 +27,7 @@ static struct world *world;
 
 void init_world(unsigned width, unsigned height, float tile_size)
 {
+	initialize_module_ealloc();
 	world = world_new(width, height, tile_size);
 }
 
