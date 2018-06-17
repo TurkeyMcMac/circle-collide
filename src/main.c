@@ -18,15 +18,20 @@ void bullet_draw(const struct circle *self)
 bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
 {
 	return container_of(circ, struct bullet, c)->health-- <= 0;
-	return false;
 }
 
 struct circle_info agent_info;
 struct circle_info bullet_info;
 
-static unsigned num_circles;
 static struct world *world;
-void init(unsigned nc, unsigned seed, float world_x, float world_y) {
+
+void init_world(unsigned width, unsigned height, float tile_size)
+{
+	world = world_new(width, height, tile_size);
+}
+
+void populate_world(unsigned pop)
+{
 	agent_info.draw = agent_draw;
 	agent_info.on_update = agent_update;
 	agent_info.radius = 6.24;
@@ -38,11 +43,8 @@ void init(unsigned nc, unsigned seed, float world_x, float world_y) {
 	mind_proto.input = AGENT_N_INPUTS;
 	mind_proto.hidden = AGENT_N_HIDDEN;
 	mind_proto.output = AGENT_N_OUTPUTS;
-	world = world_new(40, 20, 25.0);
-	seed_random(seed);
-	num_circles = nc;
 	agent_init_sensor_protos(120.0);
-	while (nc--) {
+	while (pop--) {
 		struct circle *c;
 		if (random() & 3) {
 			struct bullet *b = ealloc(sizeof(*b));

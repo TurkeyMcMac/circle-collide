@@ -1,7 +1,14 @@
+var canvas, ctx;
+
+var worldWidth = 40;
+var worldHeight = 20;
+var tileSize;
 var population = 50;
 
 function main(wasm) {
-	wasm.exports._init(population, Math.random() * 10000, 500, 500);
+	wasm.exports._seed_random(Math.random() * 10000);
+	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
+	wasm.exports._populate_world(population);
 	setInterval(function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		wasm.exports._step_circles();
@@ -10,9 +17,9 @@ function main(wasm) {
 
 document.getElementById("circle-population").innerHTML =
 	"population: " + population;
-
-var canvas = document.getElementById('circle-canvas');
-var ctx = canvas.getContext('2d');
+canvas = document.getElementById('circle-canvas');
+tileSize = Math.min(canvas.width / worldWidth, canvas.height / worldHeight);
+ctx = canvas.getContext('2d');
 ctx.strokeStyle = '#00003f';
 
 var imports = {
