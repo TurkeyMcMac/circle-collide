@@ -7,37 +7,13 @@
 #include "vec2d.h"
 #include "world.h"
 
-static struct vec2d sensor_protos[AGENT_N_SENSORS];
-
-void agent_draw(const struct circle *circ)
-{
-	const struct agent *self = container_of(circ, struct agent, c);
-	struct vec2d face = {circ->info->radius, 0};
-	vec2d_rotation_t rot;
-	vec2d_rotation_get(&rot, self->direction);
-	vec2d_apply_rotation(&face, &rot);
-	face.x += circ->position.x;
-	face.y += circ->position.y;
-	jsDrawLine(circ->position.x, circ->position.y, face.x, face.y);
-	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
-		struct vec2d sensor;
-		if ((self->senses & (1 << i)) == 0)
-			continue;
-		sensor = sensor_protos[i];
-		vec2d_apply_rotation(&sensor, &rot);
-		sensor.x += self->c.position.x;
-		sensor.y += self->c.position.y;
-		jsDrawLine(
-			self->c.position.x, self->c.position.y,
-			sensor.x, sensor.y
-		);
-	}
-	jsDrawCircle(circ->position.x, circ->position.y, circ->info->radius);
-}
+struct circle_info agent_info;
+struct circle_info bullet_info;
 
 struct neural_net mind_proto;
+static struct vec2d sensor_protos[AGENT_N_SENSORS];
 
-void agent_init_sensor_protos(float range)
+static void init_sensor_protos(float range)
 {
 	unsigned i = AGENT_N_SENSORS - 1;
 	static vec2d_rotation_t rot;
@@ -48,6 +24,16 @@ void agent_init_sensor_protos(float range)
 		sensor_protos[i] = sensor_protos[i + 1];
 		vec2d_apply_rotation(sensor_protos + i, &rot);
 	}
+}
+
+void bullet_draw(const struct circle *self)
+{
+	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
+}
+
+bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
+{
+	return container_of(circ, struct bullet, c)->health-- <= 0;
 }
 
 static void move_agent(struct agent *a, nn_bitset orders)
@@ -196,7 +182,7 @@ static nn_bitset test_sensors(struct agent *self,
 	return senses;
 }
 
-bool agent_update(struct circle *circ,
+static bool update_agent(struct circle *circ,
 	struct world *w,
 	unsigned x, unsigned y)
 {
@@ -211,4 +197,49 @@ bool agent_update(struct circle *circ,
 	circ->speed.x *= 0.995;
 	circ->speed.y *= 0.995;
 	return false;
+}
+
+static void draw_agent(const struct circle *circ)
+{
+	const struct agent *self = container_of(circ, struct agent, c);
+	struct vec2d face = {circ->info->radius, 0};
+	vec2d_rotation_t rot;
+	vec2d_rotation_get(&rot, self->direction);
+	vec2d_apply_rotation(&face, &rot);
+	face.x += circ->position.x;
+	face.y += circ->position.y;
+	jsDrawLine(circ->position.x, circ->position.y, face.x, face.y);
+	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
+		struct vec2d sensor;
+		if ((self->senses & (1 << i)) == 0)
+			continue;
+		sensor = sensor_protos[i];
+		vec2d_apply_rotation(&sensor, &rot);
+		sensor.x += self->c.position.x;
+		sensor.y += self->c.position.y;
+		jsDrawLine(
+			self->c.position.x, self->c.position.y,
+			sensor.x, sensor.y
+		);
+	}
+	jsDrawCircle(circ->position.x, circ->position.y, circ->info->radius);
+}
+
+void initialize_module_agent(void)
+{
+	agent_info.draw = draw_agent;
+	agent_info.on_update = update_agent;
+	agent_info.radius = 6.24;
+	agent_info.mass = agent_info.radius * agent_info.radius;
+
+	bullet_info.draw = bullet_draw;
+	bullet_info.on_update = bullet_update;
+	bullet_info.radius = 4.0;
+	bullet_info.mass = 16.0;
+
+	mind_proto.input = AGENT_N_INPUTS;
+	mind_proto.hidden = AGENT_N_HIDDEN;
+	mind_proto.output = AGENT_N_OUTPUTS;
+
+	init_sensor_protos(120.0);
 }

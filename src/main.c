@@ -10,19 +10,6 @@
 #include "vec2d.h"
 #include "world.h"
 
-void bullet_draw(const struct circle *self)
-{
-	jsDrawCircle(self->position.x, self->position.y, self->info->radius);
-}
-
-bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
-{
-	return container_of(circ, struct bullet, c)->health-- <= 0;
-}
-
-struct circle_info agent_info;
-struct circle_info bullet_info;
-
 static struct world *world;
 
 void init_world(unsigned width, unsigned height, float tile_size)
@@ -33,18 +20,7 @@ void init_world(unsigned width, unsigned height, float tile_size)
 
 void populate_world(unsigned pop)
 {
-	agent_info.draw = agent_draw;
-	agent_info.on_update = agent_update;
-	agent_info.radius = 6.24;
-	agent_info.mass = agent_info.radius * agent_info.radius;
-	bullet_info.draw = bullet_draw;
-	bullet_info.on_update = bullet_update;
-	bullet_info.radius = 4.0;
-	bullet_info.mass = 16.0;
-	mind_proto.input = AGENT_N_INPUTS;
-	mind_proto.hidden = AGENT_N_HIDDEN;
-	mind_proto.output = AGENT_N_OUTPUTS;
-	agent_init_sensor_protos(120.0);
+	initialize_module_agent();
 	while (pop--) {
 		struct circle *c;
 		if (random() & 3) {

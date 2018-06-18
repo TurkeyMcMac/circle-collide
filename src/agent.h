@@ -28,6 +28,9 @@ struct agent {
 	NN_WEIGHTS_ARRAY(mind, AGENT_N_INPUTS, AGENT_N_HIDDEN, AGENT_N_OUTPUTS);
 };
 
+extern struct circle_info agent_info;
+extern struct circle_info bullet_info;
+
 extern struct neural_net mind_proto;
 
 struct bullet {
@@ -42,10 +45,6 @@ struct agent_manager {
 	struct agent agents[];
 };
 
-void agent_draw(const struct circle *circ);
-
-bool agent_update(struct circle *circ, struct world *w, unsigned x, unsigned y);
-
-void agent_init_sensor_protos(float range);
+void initialize_module_agent(void);
 
 #endif /* Header guard */
