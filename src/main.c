@@ -22,27 +22,18 @@ void populate_world(unsigned pop)
 {
 	initialize_module_agent();
 	while (pop--) {
-		struct circle *c;
-		if (random() & 3) {
-			struct bullet *b = ealloc(sizeof(*b));
-			b->health = 100;
-			c = &b->c;
-			c->info = &bullet_info;
-		}
-		else {
-			struct agent *a = ealloc(sizeof(*a));
-			c = &a->c;
-			c->info = &agent_info;
-			a->direction = frandom() * 2 * PI;
-			neural_net_random(&mind_proto, a->mind);
-		}
-		c->position.x = random() %
+		struct agent *a = ealloc(sizeof(*a));
+		a->c.info = &agent_info;
+		a->direction = frandom() * 2 * PI;
+		a->cooldown = 50;
+		neural_net_random(&mind_proto, a->mind);
+		a->c.position.x = random() %
 			(unsigned)(world->width * world->tile_size);
-		c->position.y = random() %
+		a->c.position.y = random() %
 			(unsigned)(world->height * world->tile_size);
-		c->speed.x = frandom() * 2.0 - 1.0;
-		c->speed.y = frandom() * 2.0 - 1.0;
-		world_put(world, c);
+		a->c.speed.x = frandom() * 2.0 - 1.0;
+		a->c.speed.y = frandom() * 2.0 - 1.0;
+		world_put(world, &a->c);
 	}
 }
 

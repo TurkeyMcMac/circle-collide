@@ -23,6 +23,7 @@ struct agent {
 	nn_bitset senses;
 	float direction;
 	int health;
+	int cooldown;
 	unsigned score;
 	unsigned char mem;
 	NN_WEIGHTS_ARRAY(mind, AGENT_N_INPUTS, AGENT_N_HIDDEN, AGENT_N_OUTPUTS);
@@ -36,7 +37,7 @@ extern struct neural_net mind_proto;
 struct bullet {
 	struct circle c;
 	struct agent *owner;
-	int health;
+	int time;
 };
 
 struct agent_manager {

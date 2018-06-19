@@ -1,5 +1,6 @@
 #include "agent.h"
 #include "container-of.h"
+#include "ealloc.h"
 #include "intersector.h"
 #include "js-routines.h"
 #include "math.h"
@@ -33,22 +34,72 @@ void bullet_draw(const struct circle *self)
 
 bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
 {
-	return container_of(circ, struct bullet, c)->health-- <= 0;
+	return container_of(circ, struct bullet, c)->time-- <= 0;
 }
 
-static void move_agent(struct agent *a, nn_bitset orders)
+struct circle *next_free_bullet = NULL;
+
+void bullet_delete(struct circle *self)
 {
+	self->next = next_free_bullet;
+	next_free_bullet = self;
+}
+
+struct bullet *new_bullet(void)
+{
+	struct bullet *b;
+	if (next_free_bullet) {
+		b = container_of(next_free_bullet, struct bullet, c);
+		next_free_bullet = next_free_bullet->next;
+	} else
+		b = ealloc(sizeof(*b));
+	return b;
+}
+
+static void fire_bullet(struct agent *owner,
+	struct world *w,
+	const vec2d_rotation_t *rot)
+{
+	struct bullet *b = new_bullet();
+	if (b == NULL) {
+		return;
+	}
+	b->c.info = &bullet_info;
+	b->c.speed.x = 4.0;
+	b->c.speed.y = 0.0;
+	vec2d_apply_rotation(&b->c.speed, rot);
+	b->c.speed.x += owner->c.speed.x;
+	b->c.speed.y += owner->c.speed.y;
+	struct vec2d offset = {
+		owner->c.info->radius + bullet_info.radius + 1.0, 0.0
+	};
+	vec2d_apply_rotation(&offset, rot);
+	b->c.position = owner->c.position;
+	b->c.position.x += offset.x;
+	b->c.position.y += offset.y;
+	b->owner = owner;
+	b->time = 200;
+	world_put(w, &b->c);
+}
+
+static void move_agent(struct agent *a, struct world *w, nn_bitset orders)
+{
+	vec2d_rotation_t rot;
 	if (orders & AGENT_OUT_LEFT)
 		a->direction += 0.04;
 	if (orders & AGENT_OUT_RIGHT)
 		a->direction -= 0.04;
+	if (orders & (AGENT_OUT_THRUST | AGENT_OUT_SHOOT))
+		vec2d_rotation_get(&rot, a->direction);
 	if (orders & AGENT_OUT_THRUST) {
-		vec2d_rotation_t rotation;
 		struct vec2d thrust = { 0.05, 0};
-		vec2d_rotation_get(&rotation, a->direction);
-		vec2d_apply_rotation(&thrust, &rotation);
+		vec2d_apply_rotation(&thrust, &rot);
 		a->c.speed.x += thrust.x;
 		a->c.speed.y += thrust.y;
+	}
+	if (orders & AGENT_OUT_SHOOT && a->cooldown-- <= 0) {
+		a->cooldown = 50;
+		fire_bullet(a, w, &rot);
 	}
 }
 
@@ -175,7 +226,9 @@ static nn_bitset test_sensors(struct agent *self,
 	vec2d_rotation_t rot;
 	vec2d_rotation_get(&rot, self->direction);
 	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
-		struct vec2d shape = sensor_protos[i];
+		struct vec2d shape; 
+		shape.x = sensor_protos[i].x;
+		shape.y = sensor_protos[i].y;
 		vec2d_apply_rotation(&shape, &rot);
 		senses |= test_sensor(self, &shape, w, x, y) << i;
 	}
@@ -192,7 +245,7 @@ static bool update_agent(struct circle *circ,
 	in <<= AGENT_N_MEM_BITS;
 	in |= self->mem;
 	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
-	move_agent(self, out);
+	move_agent(self, w, out);
 	self->mem = out & AGENT_MEM_MASK;
 	circ->speed.x *= 0.995;
 	circ->speed.y *= 0.995;
@@ -225,17 +278,23 @@ static void draw_agent(const struct circle *circ)
 	jsDrawCircle(circ->position.x, circ->position.y, circ->info->radius);
 }
 
+void agent_delete(struct circle *self)
+{}
+
 void initialize_module_agent(void)
 {
 	agent_info.draw = draw_agent;
 	agent_info.on_update = update_agent;
 	agent_info.radius = 6.24;
 	agent_info.mass = agent_info.radius * agent_info.radius;
+	agent_info.delete = agent_delete;
 
 	bullet_info.draw = bullet_draw;
 	bullet_info.on_update = bullet_update;
 	bullet_info.radius = 4.0;
 	bullet_info.mass = 16.0;
+	bullet_info.delete = bullet_delete;
+	next_free_bullet = NULL;
 
 	mind_proto.input = AGENT_N_INPUTS;
 	mind_proto.hidden = AGENT_N_HIDDEN;
