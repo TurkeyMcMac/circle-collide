@@ -66,3 +66,5 @@ void world_reset_updates(struct world *self);
 void world_move_circles(struct world *self);
 
 void world_draw(struct world *self);
+
+void world_clear(struct world *self);

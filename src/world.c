@@ -359,3 +359,16 @@ void world_draw(struct world *self)
 		}
 	}
 }
+
+void world_clear(struct world *self)
+{
+	for (unsigned i = 0; i < self->width * self->height; ++i) {
+		struct circle **tile = &self->tiles[i], *c = *tile;
+		while (c != NULL) {
+			struct circle *next = c->next;
+			c->info->delete(c);
+			c = next;
+		}
+		*tile = NULL;
+	}
+}
