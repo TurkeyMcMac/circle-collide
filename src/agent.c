@@ -40,7 +40,11 @@ bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
 bool bullet_collide(struct circle *circ, struct circle *other)
 {
 	struct bullet *self = container_of(circ, struct bullet, c);
-	if (other->info != &bullet_info && other != &self->owner->c) {
+	if (other == &self->owner->c) {
+		// Prevent friendly fire most of the time
+		++self->owner->health;
+		return true;
+	} else if (other->info != &bullet_info) {
 		self->time = 0;
 		++self->owner->score;
 		return false;
