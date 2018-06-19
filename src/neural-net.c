@@ -11,9 +11,9 @@ void neural_net_random(const struct neural_net *self, signed char *weights)
 	}
 }
 
-static nn_bitset compute_neuron(unsigned num_weights,
+static nn_bitset_t compute_neuron(unsigned num_weights,
 	const signed char *weights,
-	nn_bitset in_bits)
+	nn_bitset_t in_bits)
 {
 	int sum = *weights;
 	while (--num_weights) {
@@ -23,12 +23,12 @@ static nn_bitset compute_neuron(unsigned num_weights,
 	return sum > 0;
 }
 
-static nn_bitset compute_layer(unsigned num_neurons,
+static nn_bitset_t compute_layer(unsigned num_neurons,
 	unsigned weights_per_neuron,
 	const signed char *weights,
-	nn_bitset in_bits)
+	nn_bitset_t in_bits)
 {
-	nn_bitset out_bits = 0;
+	nn_bitset_t out_bits = 0;
 	++weights_per_neuron;
 	while (num_neurons--) {
 		out_bits |= compute_neuron(weights_per_neuron, weights
@@ -38,13 +38,13 @@ static nn_bitset compute_layer(unsigned num_neurons,
 	return out_bits;
 }
 
-nn_bitset neural_net_compute(const struct neural_net *self,
+nn_bitset_t neural_net_compute(const struct neural_net *self,
 	const signed char *weights,
-	nn_bitset in_bits)
+	nn_bitset_t in_bits)
 {
-	nn_bitset hidden =
+	nn_bitset_t hidden =
 		compute_layer(self->hidden, self->input, weights, in_bits);
-	nn_bitset output = compute_layer(self->output, self->hidden,
+	nn_bitset_t output = compute_layer(self->output, self->hidden,
 		weights + self->hidden * (self->input + 1), hidden);
 	return output;
 }

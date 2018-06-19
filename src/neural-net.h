@@ -6,13 +6,13 @@ struct neural_net {
 	unsigned input, hidden, output;
 };
 
-typedef unsigned long nn_bitset;
+typedef unsigned long nn_bitset_t;
 
 void neural_net_random(const struct neural_net *self, signed char *weights);
 
-nn_bitset neural_net_compute(const struct neural_net *self,
+nn_bitset_t neural_net_compute(const struct neural_net *self,
 	const signed char *weights,
-	nn_bitset in_bits);
+	nn_bitset_t in_bits);
 
 #define NN_WEIGHTS_NUM(input, hidden, output) \
 	((hidden) * ((input) + 1) + (output) * ((hidden) + 1))

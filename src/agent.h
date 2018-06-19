@@ -23,7 +23,7 @@
 
 struct agent {
 	struct circle c;
-	nn_bitset senses;
+	nn_bitset_t senses;
 	float direction;
 	int health;
 	int cooldown;

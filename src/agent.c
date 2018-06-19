@@ -91,7 +91,7 @@ static void fire_bullet(struct agent *owner,
 	world_put(w, &b->c);
 }
 
-static void move_agent(struct agent *a, struct world *w, nn_bitset orders)
+static void move_agent(struct agent *a, struct world *w, nn_bitset_t orders)
 {
 	vec2d_rotation_t rot;
 	if (orders & AGENT_OUT_LEFT)
@@ -188,7 +188,7 @@ unsigned x, y, width, height;
 	return false;
 }
 
-static nn_bitset test_sensor(struct agent *self,
+static nn_bitset_t test_sensor(struct agent *self,
 	const struct vec2d *shape,
 	struct world *w,
 	unsigned x, unsigned y)
@@ -196,7 +196,7 @@ static nn_bitset test_sensor(struct agent *self,
 	// Middle width, middle height, wrapped with, wrapped height
 	unsigned mw, mh, ww, wh;
 	intersector_t sensor;
-	nn_bitset ret = 0;
+	nn_bitset_t ret = 0;
 	find_sensor_sectors(&self->c.position, shape, w,
 		&x, &y, &mw, &mh, &ww, &wh);
 	intersector_init(&sensor, shape);
@@ -227,11 +227,11 @@ done:
 	return 1;
 }
 
-static nn_bitset test_sensors(struct agent *self,
+static nn_bitset_t test_sensors(struct agent *self,
 	struct world *w,
 	unsigned x, unsigned y)
 {
-	nn_bitset senses = 0;
+	nn_bitset_t senses = 0;
 	vec2d_rotation_t rot;
 	vec2d_rotation_get(&rot, self->direction);
 	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
@@ -251,11 +251,11 @@ static bool update_agent(struct circle *circ,
 	struct agent *self = container_of(circ, struct agent, c);
 	if (self->health <= 0)
 		return true;
-	nn_bitset in = test_sensors(self, w, x, y);
+	nn_bitset_t in = test_sensors(self, w, x, y);
 	self->senses = in;
 	in <<= AGENT_N_MEM_BITS;
 	in |= self->mem;
-	nn_bitset out = neural_net_compute(&mind_proto, self->mind, in);
+	nn_bitset_t out = neural_net_compute(&mind_proto, self->mind, in);
 	move_agent(self, w, out);
 	self->mem = out & AGENT_MEM_MASK;
 	circ->speed.x *= 0.995;
