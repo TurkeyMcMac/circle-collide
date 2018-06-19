@@ -80,20 +80,17 @@ float circle_collide(struct circle *restrict self,
 
 bool circle_is_updated(const struct circle *self)
 {
-	unsigned long marked = (unsigned long)self->info;
-	return marked & 1;
+	return self->is_updated;
 }
 
 void circle_set_updated(struct circle *self)
 {
-	unsigned long mark = (unsigned long)self->info;
-	self->info = (void *)(mark | 1);
+	self->is_updated = true;
 }
 
 void circle_finish_update(struct circle *self)
 {
-	unsigned long marked = (unsigned long)self->info;
-	self->info = (void *)(marked & ~1);
+	self->is_updated = false;
 }
 
 static float wrap_float(float f, float range)

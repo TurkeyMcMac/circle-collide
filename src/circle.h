@@ -14,6 +14,7 @@ struct circle_info {
 	bool (*on_update)(struct circle *self,
 		struct world *w,
 		unsigned x, unsigned y);
+	void (*delete)(struct circle *self);
 	void (*draw)(const struct circle *self);
 };
 
@@ -21,6 +22,7 @@ struct circle {
 	struct circle *next;
 	struct circle_info *info;
 	struct vec2d position, speed;
+	bool is_updated;
 };
 
 #define LIST_FOR_EACH(list, item) \
