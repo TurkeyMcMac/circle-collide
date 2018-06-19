@@ -1,7 +1,10 @@
 const KEYCODE_ENTER = 13;
+const SECONDS_PER_GENERATION = 60;
 
 var canvas, ctx;
+
 var wasm;
+
 var worldWidth = 40;
 var worldHeight = 20;
 var tileSize;
@@ -16,9 +19,40 @@ function main() {
 }
 
 function initializeWorld(population) {
+	resetTimer(function() {
+		initializeWorld(population);
+	});
+	displayTimer();
 	wasm.exports._seed_random(Math.random() * 10000);
 	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
 	wasm.exports._populate_world(population);
+}
+
+var timerIntervalId;
+var timerMin = 1;
+var timerSec = 0;
+function resetTimer(endTrigger) {
+	if (timerIntervalId != undefined) {
+		clearInterval(timerIntervalId);
+	}
+	timerMin = Math.floor(SECONDS_PER_GENERATION / 60);
+	timerSec = SECONDS_PER_GENERATION % 60;
+	timerIntervalId = setInterval(function() {
+		if (--timerSec < 0) {
+			if (--timerMin < 0)
+				endTrigger();
+			else
+				timerSec += 60;
+		}
+		displayTimer();
+	}, 1000);
+}
+
+var timerMinDisplay = document.getElementById("timer-min");
+var timerSecDisplay = document.getElementById("timer-sec");
+function displayTimer() {
+	timerMinDisplay.innerHTML = timerMin;
+	timerSecDisplay.innerHTML = (timerSec < 10 ? "0" : "") + timerSec;
 }
 
 canvas = document.getElementById('circle-canvas');

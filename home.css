@@ -19,3 +19,7 @@ p, input {
 	width: 50px;
 	background-color: lightblue;
 }
+
+#timer {
+	font-weight: bold;
+}
