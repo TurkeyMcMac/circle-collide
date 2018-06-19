@@ -26,6 +26,7 @@ void populate_world(unsigned pop)
 		a->c.info = &agent_info;
 		a->direction = frandom() * 2 * PI;
 		a->cooldown = 50;
+		a->health = 20;
 		neural_net_random(&mind_proto, a->mind);
 		a->c.position.x = random() %
 			(unsigned)(world->width * world->tile_size);

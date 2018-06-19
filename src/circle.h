@@ -15,6 +15,7 @@ struct circle_info {
 		struct world *w,
 		unsigned x, unsigned y);
 	void (*delete)(struct circle *self);
+	bool (*on_collide)(struct circle *self, struct circle *other);
 	void (*draw)(const struct circle *self);
 };
 

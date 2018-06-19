@@ -70,7 +70,9 @@ float circle_collide(struct circle *restrict self,
 	float dist;
 	if (diff.x <= touch_dist && diff.y < touch_dist
 	 && (dist = vec2d_length(&diff)) < touch_dist
-	 && dist > 0.0) {
+	 && dist > 0.0
+	 &&  self->info->on_collide(self, other)
+	   & other->info->on_collide(other, self)) {
 		bounce(self, other, dist);
 		return dist;
 	} else

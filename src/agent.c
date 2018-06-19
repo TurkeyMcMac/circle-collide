@@ -37,6 +37,17 @@ bool bullet_update(struct circle *circ, struct world *w, unsigned x, unsigned y)
 	return container_of(circ, struct bullet, c)->time-- <= 0;
 }
 
+bool bullet_collide(struct circle *circ, struct circle *other)
+{
+	struct bullet *self = container_of(circ, struct bullet, c);
+	if (other->info != &bullet_info && other != &self->owner->c) {
+		self->time = 0;
+		++self->owner->score;
+		return false;
+	} else
+		return true;
+}
+
 struct circle *next_free_bullet = NULL;
 
 void bullet_delete(struct circle *self)
@@ -70,13 +81,11 @@ static void fire_bullet(struct agent *owner,
 	vec2d_apply_rotation(&b->c.speed, rot);
 	b->c.speed.x += owner->c.speed.x;
 	b->c.speed.y += owner->c.speed.y;
-	struct vec2d offset = {
-		owner->c.info->radius + bullet_info.radius + 1.0, 0.0
-	};
+	struct vec2d offset = {owner->c.info->radius + bullet_info.radius, 0.0};
 	vec2d_apply_rotation(&offset, rot);
 	b->c.position = owner->c.position;
-	b->c.position.x += offset.x;
-	b->c.position.y += offset.y;
+	b->c.position.x += offset.x + owner->c.speed.x;
+	b->c.position.y += offset.y + owner->c.speed.y;
 	b->owner = owner;
 	b->time = 200;
 	world_put(w, &b->c);
@@ -240,6 +249,8 @@ static bool update_agent(struct circle *circ,
 	unsigned x, unsigned y)
 {
 	struct agent *self = container_of(circ, struct agent, c);
+	if (self->health <= 0)
+		return true;
 	nn_bitset in = test_sensors(self, w, x, y);
 	self->senses = in;
 	in <<= AGENT_N_MEM_BITS;
@@ -281,16 +292,23 @@ static void draw_agent(const struct circle *circ)
 void agent_delete(struct circle *self)
 {}
 
+bool agent_collide(struct circle *circ, struct circle *other)
+{
+	return --container_of(circ, struct agent, c)->health > 0;
+}
+
 void initialize_module_agent(void)
 {
 	agent_info.draw = draw_agent;
 	agent_info.on_update = update_agent;
+	agent_info.on_collide = agent_collide;
 	agent_info.radius = 6.24;
 	agent_info.mass = agent_info.radius * agent_info.radius;
 	agent_info.delete = agent_delete;
 
 	bullet_info.draw = bullet_draw;
 	bullet_info.on_update = bullet_update;
+	bullet_info.on_collide = bullet_collide;
 	bullet_info.radius = 4.0;
 	bullet_info.mass = 16.0;
 	bullet_info.delete = bullet_delete;
