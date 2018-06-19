@@ -7,7 +7,7 @@ var worldHeight = 20;
 var tileSize;
 var initialPopulation = 50;
 
-function main(w) {
+function main() {
 	initializeWorld(initialPopulation);
 	setInterval(function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -65,7 +65,7 @@ var imports = {
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
 	.then(function(wa) {
 		wasm = wa.instance;
-		main(wa.instance);
+		main();
 	});
 
 var populationBox = document.getElementById("circle-population");
