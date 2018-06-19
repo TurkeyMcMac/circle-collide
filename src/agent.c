@@ -8,10 +8,10 @@
 #include "vec2d.h"
 #include "world.h"
 
-struct circle_info agent_info;
-struct circle_info bullet_info;
+static struct circle_info agent_info;
+static struct circle_info bullet_info;
 
-struct neural_net mind_proto;
+static struct neural_net mind_proto;
 static struct vec2d sensor_protos[AGENT_N_SENSORS];
 
 static void init_sensor_protos(float range)
@@ -323,4 +323,32 @@ void initialize_module_agent(void)
 	mind_proto.output = AGENT_N_OUTPUTS;
 
 	init_sensor_protos(120.0);
+}
+
+struct agent_manager *agent_manager_new(unsigned n_agents)
+{
+	struct agent_manager *am =
+		ealloc(sizeof(*am) + n_agents * sizeof(*am->agents));
+	am->n_agents = n_agents;
+	while (n_agents--) {
+		struct agent *a = &am->agents[n_agents];
+		a->c.info = &agent_info;
+		a->direction = frandom() * 2 * PI;
+		a->cooldown = 50;
+		a->health = 10;
+		a->mind = ealloc(AGENT_MIND_SIZE);
+		neural_net_random(&mind_proto, a->mind);
+		a->c.position.x = random();
+		a->c.position.y = random();
+		a->c.speed.x = frandom() * 2.0 - 1.0;
+		a->c.speed.y = frandom() * 2.0 - 1.0;
+	}
+	return am;
+}
+
+void agent_manager_spread(struct agent_manager *self, struct world *w)
+{
+	for (unsigned i = 0; i < self->n_agents; ++i) {
+		world_put(w, &self->agents[i].c);
+	}
 }

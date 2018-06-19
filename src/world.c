@@ -21,7 +21,7 @@ void world_put(struct world *self, struct circle *c)
 {
 	unsigned tile_x = c->position.x / self->tile_size,
 	         tile_y = c->position.y / self->tile_size;
-	struct circle **tile = world_get(self, tile_x, tile_y);
+	struct circle **tile = world_get_wrap(self, tile_x, tile_y);
 	c->next = *tile;
 	*tile = c;
 }

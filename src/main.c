@@ -10,6 +10,7 @@
 #include "vec2d.h"
 #include "world.h"
 
+static struct agent_manager *manager;
 static struct world *world;
 
 void init_world(unsigned width, unsigned height, float tile_size)
@@ -21,22 +22,8 @@ void init_world(unsigned width, unsigned height, float tile_size)
 void populate_world(unsigned pop)
 {
 	initialize_module_agent();
-	while (pop--) {
-		struct agent *a = ealloc(sizeof(*a));
-		a->c.info = &agent_info;
-		a->direction = frandom() * 2 * PI;
-		a->cooldown = 50;
-		a->health = 10;
-		a->mind = ealloc(AGENT_MIND_SIZE);
-		neural_net_random(&mind_proto, a->mind);
-		a->c.position.x = random() %
-			(unsigned)(world->width * world->tile_size);
-		a->c.position.y = random() %
-			(unsigned)(world->height * world->tile_size);
-		a->c.speed.x = frandom() * 2.0 - 1.0;
-		a->c.speed.y = frandom() * 2.0 - 1.0;
-		world_put(world, &a->c);
-	}
+	manager = agent_manager_new(pop);
+	agent_manager_spread(manager, world);
 }
 
 void step_circles(void)

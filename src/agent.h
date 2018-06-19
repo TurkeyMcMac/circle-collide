@@ -32,11 +32,6 @@ struct agent {
 	signed char *mind;
 };
 
-extern struct circle_info agent_info;
-extern struct circle_info bullet_info;
-
-extern struct neural_net mind_proto;
-
 struct bullet {
 	struct circle c;
 	struct agent *owner;
@@ -44,10 +39,13 @@ struct bullet {
 };
 
 struct agent_manager {
-	unsigned n_agents,
-	         n_living;
+	unsigned n_agents;
 	struct agent agents[];
 };
+
+struct agent_manager *agent_manager_new(unsigned n_agents);
+
+void agent_manager_spread(struct agent_manager *self, struct world *w);
 
 void initialize_module_agent(void);
 
