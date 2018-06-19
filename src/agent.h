@@ -18,6 +18,9 @@
 #define AGENT_OUT_RIGHT   ( 1 << (AGENT_N_MEM_BITS + 2) )
 #define AGENT_OUT_SHOOT   ( 1 << (AGENT_N_MEM_BITS + 3) )
 
+#define AGENT_MIND_SIZE \
+	NN_WEIGHTS_NUM(AGENT_N_INPUTS, AGENT_N_HIDDEN, AGENT_N_OUTPUTS)
+
 struct agent {
 	struct circle c;
 	nn_bitset senses;
@@ -26,7 +29,7 @@ struct agent {
 	int cooldown;
 	unsigned score;
 	unsigned char mem;
-	NN_WEIGHTS_ARRAY(mind, AGENT_N_INPUTS, AGENT_N_HIDDEN, AGENT_N_OUTPUTS);
+	signed char *mind;
 };
 
 extern struct circle_info agent_info;

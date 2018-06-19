@@ -27,6 +27,7 @@ void populate_world(unsigned pop)
 		a->direction = frandom() * 2 * PI;
 		a->cooldown = 50;
 		a->health = 20;
+		a->mind = ealloc(AGENT_MIND_SIZE);
 		neural_net_random(&mind_proto, a->mind);
 		a->c.position.x = random() %
 			(unsigned)(world->width * world->tile_size);
