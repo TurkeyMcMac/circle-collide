@@ -8,7 +8,7 @@ var wasm;
 var worldWidth = 40;
 var worldHeight = 20;
 var tileSize;
-var initialPopulation = 50;
+var initialPopulation = 25;
 
 function main() {
 	initializeWorld(initialPopulation);
