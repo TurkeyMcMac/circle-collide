@@ -45,7 +45,7 @@ struct agent_manager {
 
 static inline int agent_fitness(const struct agent *self)
 {
-	return self->health + (int)self->score * 2;
+	return self->health * (int)self->score;
 }
 
 
