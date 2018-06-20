@@ -21,6 +21,7 @@ function main() {
 }
 
 var lastHighScore = document.getElementById("last-high-score");
+
 function nextGeneration() {
 	lastHighScore.innerHTML = wasm.exports._next_generation();
 	resetTimer(nextGeneration);
@@ -29,6 +30,7 @@ function nextGeneration() {
 function initializeWorld(population) {
 	resetTimer(nextGeneration);
 	displayTimer();
+	lastHighScore.innerHTML = "N/A";
 	wasm.exports._seed_random(Math.random() * 10000);
 	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
 	wasm.exports._populate_world(population);
