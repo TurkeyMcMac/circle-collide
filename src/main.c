@@ -26,11 +26,12 @@ void populate_world(unsigned pop)
 	agent_manager_spread(manager, world);
 }
 
-void next_generation(void)
+int next_generation(void)
 {
 	world_clear(world);
 	agent_manager_winnow(manager);
 	agent_manager_spread(manager, world);
+	return agent_fitness(&manager->agents[0]);
 }
 
 void step_circles(void)

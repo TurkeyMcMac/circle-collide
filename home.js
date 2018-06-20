@@ -18,8 +18,9 @@ function main() {
 	}, 50);
 }
 
+var lastHighScore = document.getElementById("last-high-score");
 function nextGeneration() {
-	wasm.exports._next_generation();
+	lastHighScore.innerHTML = wasm.exports._next_generation();
 	resetTimer(nextGeneration);
 }
 

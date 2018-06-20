@@ -367,11 +367,6 @@ static void mutate_mind(signed char *mind, unsigned size, unsigned n_mut)
 	}
 }
 
-static int agent_fitness(const struct agent *a)
-{
-	return a->health + (int)a->score;
-}
-
 static void *memcpy(void *restrict into, const void *restrict from, unsigned n)
 {
 	char *restrict to = into;
@@ -402,10 +397,6 @@ static void sort_agents(struct agent list[], unsigned length)
 void agent_manager_winnow(struct agent_manager *self)
 {
 	sort_agents(self->agents, self->n_agents);
-	jsLogNum(-99);
-	for (unsigned i = 0; i < self->n_agents; ++i) {
-		jsLogNum(agent_fitness(&self->agents[i]));
-	}
 	for (unsigned i = 0; i < self->n_agents / 2; ++i) {
 		struct agent *a = &self->agents[i + self->n_agents / 2];
 		memcpy(a->mind, self->agents[i].mind, AGENT_MIND_SIZE);
