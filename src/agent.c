@@ -80,7 +80,7 @@ static void fire_bullet(struct agent *owner,
 		return;
 	}
 	b->c.info = &bullet_info;
-	b->c.speed.x = 4.0;
+	b->c.speed.x = 5.0;
 	b->c.speed.y = 0.0;
 	vec2d_apply_rotation(&b->c.speed, rot);
 	b->c.speed.x += owner->c.speed.x;
