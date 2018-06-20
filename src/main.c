@@ -26,6 +26,13 @@ void populate_world(unsigned pop)
 	agent_manager_spread(manager, world);
 }
 
+void next_generation(void)
+{
+	world_clear(world);
+	agent_manager_winnow(manager);
+	agent_manager_spread(manager, world);
+}
+
 void step_circles(void)
 {
 	world_update_top_left(world);

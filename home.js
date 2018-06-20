@@ -18,10 +18,13 @@ function main() {
 	}, 50);
 }
 
+function nextGeneration() {
+	wasm.exports._next_generation();
+	resetTimer(nextGeneration);
+}
+
 function initializeWorld(population) {
-	resetTimer(function() {
-		initializeWorld(population);
-	});
+	resetTimer(nextGeneration);
 	displayTimer();
 	wasm.exports._seed_random(Math.random() * 10000);
 	wasm.exports._init_world(worldWidth, worldHeight, tileSize);

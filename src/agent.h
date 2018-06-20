@@ -47,6 +47,8 @@ struct agent_manager *agent_manager_new(unsigned n_agents);
 
 void agent_manager_spread(struct agent_manager *self, struct world *w);
 
+void agent_manager_winnow(struct agent_manager *self);
+
 void initialize_module_agent(void);
 
 #endif /* Header guard */

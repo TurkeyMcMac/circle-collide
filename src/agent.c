@@ -91,7 +91,7 @@ static void fire_bullet(struct agent *owner,
 	b->c.position.x += offset.x + owner->c.speed.x;
 	b->c.position.y += offset.y + owner->c.speed.y;
 	b->owner = owner;
-	b->time = 200;
+	b->time = 30;
 	world_put(w, &b->c);
 }
 
@@ -99,13 +99,13 @@ static void move_agent(struct agent *a, struct world *w, nn_bitset_t orders)
 {
 	vec2d_rotation_t rot;
 	if (orders & AGENT_OUT_LEFT)
-		a->direction += 0.04;
+		a->direction += 0.06;
 	if (orders & AGENT_OUT_RIGHT)
-		a->direction -= 0.04;
+		a->direction -= 0.06;
 	if (orders & (AGENT_OUT_THRUST | AGENT_OUT_SHOOT))
 		vec2d_rotation_get(&rot, a->direction);
 	if (orders & AGENT_OUT_THRUST) {
-		struct vec2d thrust = { 0.05, 0};
+		struct vec2d thrust = { 0.07, 0};
 		vec2d_apply_rotation(&thrust, &rot);
 		a->c.speed.x += thrust.x;
 		a->c.speed.y += thrust.y;
@@ -333,15 +333,10 @@ struct agent_manager *agent_manager_new(unsigned n_agents)
 	while (n_agents--) {
 		struct agent *a = &am->agents[n_agents];
 		a->c.info = &agent_info;
-		a->direction = frandom() * 2 * PI;
 		a->cooldown = 50;
 		a->health = 10;
 		a->mind = ealloc(AGENT_MIND_SIZE);
 		neural_net_random(&mind_proto, a->mind);
-		a->c.position.x = random();
-		a->c.position.y = random();
-		a->c.speed.x = frandom() * 2.0 - 1.0;
-		a->c.speed.y = frandom() * 2.0 - 1.0;
 	}
 	return am;
 }
@@ -349,6 +344,81 @@ struct agent_manager *agent_manager_new(unsigned n_agents)
 void agent_manager_spread(struct agent_manager *self, struct world *w)
 {
 	for (unsigned i = 0; i < self->n_agents; ++i) {
-		world_put(w, &self->agents[i].c);
+		struct circle *c = &self->agents[i].c;
+		self->agents[i].direction = frandom() * 2 * PI;
+		c->position.x = random();
+		c->position.y = random();
+		c->speed.x = frandom() * 2.0 - 1.0;
+		c->speed.y = frandom() * 2.0 - 1.0;
+		world_put(w, c);
+	}
+}
+
+static void mutate_mind(signed char *mind, unsigned size, unsigned n_mut)
+{
+	unsigned n_inc, n_dec, i;
+	n_inc = random() % n_mut;
+	n_dec = n_mut - n_inc;
+	for (i = 0; n_inc-- > 0; i = (i + random()) % size) {
+		++mind[i];
+	}
+	for (i = 0; n_dec-- > 0; i = (i + random()) % size) {
+		--mind[i];
+	}
+}
+
+static int agent_fitness(const struct agent *a)
+{
+	return a->health + (int)a->score;
+}
+
+static void *memcpy(void *restrict into, const void *restrict from, unsigned n)
+{
+	char *restrict to = into;
+	const char *restrict fr = from;
+	while (n--)
+		to[n] = fr[n];
+	return into;
+}
+
+static void sort_agents(struct agent list[], unsigned length)
+{
+	if (length < 2)
+		return;
+	struct agent at_pivot = list[0];
+	unsigned before = 0;
+	for (unsigned i = 0; i < length; ++i) {
+		if (agent_fitness(list + i) > agent_fitness(&at_pivot)) {
+			list[before] = list[i];
+			list[i] = list[++before];
+		}
+	}
+	list[before] = at_pivot;
+	sort_agents(list, before);
+	++before;
+	sort_agents(list + before, length - before);
+}
+
+void agent_manager_winnow(struct agent_manager *self)
+{
+	sort_agents(self->agents, self->n_agents);
+	jsLogNum(-99);
+	for (unsigned i = 0; i < self->n_agents; ++i) {
+		jsLogNum(agent_fitness(&self->agents[i]));
+	}
+	for (unsigned i = 0; i < self->n_agents / 2; ++i) {
+		struct agent *a = &self->agents[i + self->n_agents / 2];
+		memcpy(a->mind, self->agents[i].mind, AGENT_MIND_SIZE);
+		mutate_mind(a->mind, AGENT_MIND_SIZE, 5000);
+	}
+	if (self->n_agents & 1) {
+		memcpy(self->agents[self->n_agents - 1].mind,
+			self->agents[0].mind,
+			AGENT_MIND_SIZE);
+	}
+	for (unsigned i = 0; i < self->n_agents; ++i) {
+		struct agent *a = &self->agents[i];
+		a->cooldown = 50;
+		a->health = 10;
 	}
 }
