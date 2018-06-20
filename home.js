@@ -1,5 +1,7 @@
 const KEYCODE_ENTER = 13;
 const SECONDS_PER_GENERATION = 60;
+const SENSOR_BLUE = "#9999ff";
+const CIRCLE_BLUE = "#00003f";
 
 var canvas, ctx;
 
@@ -62,7 +64,7 @@ function displayTimer() {
 canvas = document.getElementById('circle-canvas');
 tileSize = Math.min(canvas.width / worldWidth, canvas.height / worldHeight);
 ctx = canvas.getContext('2d');
-ctx.strokeStyle = '#00003f';
+ctx.strokeStyle = SENSOR_BLUE;
 
 var imports = {
 	'env': {
@@ -86,10 +88,12 @@ var imports = {
 			console.log("Extern function has been tested.");
 		},
 		'_jsDrawCircle': function(x, y, radius) {
+			ctx.strokeStyle = CIRCLE_BLUE;
 			ctx.beginPath();
 			ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI,
 				false);
 			ctx.stroke();
+			ctx.strokeStyle = SENSOR_BLUE;
 		},
 		'_jsDrawLine': function(x1, y1, x2, y2) {
 			ctx.beginPath();
