@@ -270,14 +270,8 @@ static bool update_agent(struct circle *circ,
 static void draw_agent(const struct circle *circ)
 {
 	const struct agent *self = container_of(circ, struct agent, c);
-#	define DIRECTION_CIRCLE_RADIUS 3.0
-	struct vec2d face = {circ->info->radius - DIRECTION_CIRCLE_RADIUS, 0};
 	vec2d_rotation_t rot;
 	vec2d_rotation_get(&rot, self->direction);
-	vec2d_apply_rotation(&face, &rot);
-	face.x += circ->position.x;
-	face.y += circ->position.y;
-	jsDrawCircle(face.x, face.y, DIRECTION_CIRCLE_RADIUS);
 	for (unsigned i = 0; i < AGENT_N_SENSORS; ++i) {
 		struct vec2d sensor;
 		if ((self->senses & (1 << i)) == 0)
@@ -291,6 +285,12 @@ static void draw_agent(const struct circle *circ)
 			sensor.x, sensor.y
 		);
 	}
+#	define DIRECTION_CIRCLE_RADIUS 3.0
+	struct vec2d face = {circ->info->radius - DIRECTION_CIRCLE_RADIUS, 0};
+	vec2d_apply_rotation(&face, &rot);
+	face.x += circ->position.x;
+	face.y += circ->position.y;
+	jsDrawCircle(face.x, face.y, DIRECTION_CIRCLE_RADIUS);
 	jsDrawCircle(circ->position.x, circ->position.y, circ->info->radius);
 }
 
