@@ -8,6 +8,10 @@ p, input {
 	font-size: 15px;
 }
 
+.number {
+	font-weight: bold;
+}
+
 #circle-canvas {
 	background-color: lightblue;
 	border-color: #a0a0bf;
@@ -18,8 +22,4 @@ p, input {
 #circle-population {
 	width: 50px;
 	background-color: lightblue;
-}
-
-#timer {
-	font-weight: bold;
 }
