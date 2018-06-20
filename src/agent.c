@@ -334,8 +334,6 @@ struct agent_manager *agent_manager_new(unsigned n_agents)
 	while (n_agents--) {
 		struct agent *a = &am->agents[n_agents];
 		a->c.info = &agent_info;
-		a->cooldown = 50;
-		a->health = 10;
 		a->mind = ealloc(AGENT_MIND_SIZE);
 		neural_net_random(&mind_proto, a->mind);
 	}
@@ -345,7 +343,11 @@ struct agent_manager *agent_manager_new(unsigned n_agents)
 void agent_manager_spread(struct agent_manager *self, struct world *w)
 {
 	for (unsigned i = 0; i < self->n_agents; ++i) {
-		struct circle *c = &self->agents[i].c;
+		struct agent *a = &self->agents[i];
+		struct circle *c = &a->c;
+		a->cooldown = 50;
+		a->health = 10;
+		a->score = 0;
 		self->agents[i].direction = frandom() * 2 * PI;
 		c->position.x = random();
 		c->position.y = random();
@@ -407,10 +409,5 @@ void agent_manager_winnow(struct agent_manager *self)
 		memcpy(self->agents[self->n_agents - 1].mind,
 			self->agents[0].mind,
 			AGENT_MIND_SIZE);
-	}
-	for (unsigned i = 0; i < self->n_agents; ++i) {
-		struct agent *a = &self->agents[i];
-		a->cooldown = 50;
-		a->health = 10;
 	}
 }

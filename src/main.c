@@ -30,8 +30,9 @@ int next_generation(void)
 {
 	world_clear(world);
 	agent_manager_winnow(manager);
+	int high_score = agent_fitness(&manager->agents[0]);
 	agent_manager_spread(manager, world);
-	return agent_fitness(&manager->agents[0]);
+	return high_score;
 }
 
 void step_circles(void)
