@@ -403,7 +403,7 @@ void agent_manager_winnow(struct agent_manager *self)
 	for (unsigned i = 0; i < self->n_agents / 2; ++i) {
 		struct agent *a = &self->agents[i + self->n_agents / 2];
 		memcpy(a->mind, self->agents[i].mind, AGENT_MIND_SIZE);
-		mutate_mind(a->mind, AGENT_MIND_SIZE, 5000);
+		mutate_mind(a->mind, AGENT_MIND_SIZE, 500);
 	}
 	if (self->n_agents & 1) {
 		memcpy(self->agents[self->n_agents - 1].mind,
