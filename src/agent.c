@@ -349,8 +349,8 @@ void agent_manager_spread(struct agent_manager *self, struct world *w)
 		a->health = 10;
 		a->score = 0;
 		self->agents[i].direction = frandom() * 2 * PI;
-		c->position.x = random();
-		c->position.y = random();
+		c->position.x = (float)(random() / 10) * frandom();
+		c->position.y = (float)(random() / 10) * frandom();
 		c->speed.x = frandom() * 2.0 - 1.0;
 		c->speed.y = frandom() * 2.0 - 1.0;
 		world_put(w, c);
