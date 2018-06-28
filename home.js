@@ -20,17 +20,17 @@ function main() {
 	}, 50);
 }
 
-var lastHighScore = document.getElementById("last-high-score");
+var scoreList = document.getElementById('score-list');
 
 function nextGeneration() {
-	lastHighScore.innerHTML = wasm.exports._next_generation();
+	scoreList.innerHTML = null;
+	wasm.exports._next_generation();
 	resetTimer(nextGeneration);
 }
 
 function initializeWorld(population) {
 	resetTimer(nextGeneration);
 	displayTimer();
-	lastHighScore.innerHTML = "N/A";
 	wasm.exports._seed_random(Math.random() * 10000);
 	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
 	wasm.exports._populate_world(population);
@@ -88,6 +88,13 @@ var imports = {
 		'_tanf': Math.tan,
 		'_test_extern': function() {
 			console.log("Extern function has been tested.");
+		},
+		'_jsAppendScore': function(score) {
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			td.innerHTML = score;
+			tr.appendChild(td);
+			scoreList.appendChild(tr);
 		},
 		'_jsDrawCircle': function(x, y, radius) {
 			ctx.strokeStyle = CIRCLE_BLUE;

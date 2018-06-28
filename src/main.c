@@ -26,13 +26,13 @@ void populate_world(unsigned pop)
 	agent_manager_spread(manager, world);
 }
 
-int next_generation(void)
+void next_generation(void)
 {
 	world_clear(world);
 	agent_manager_winnow(manager);
-	int high_score = agent_fitness(&manager->agents[0]);
+	for (size_t i = 0; i < manager->n_agents; ++i)
+		jsAppendScore(agent_fitness(&manager->agents[i]));
 	agent_manager_spread(manager, world);
-	return high_score;
 }
 
 void step_circles(void)
