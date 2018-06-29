@@ -9,3 +9,5 @@ extern void jsLogNum(int n);
 #else
 #	define jsLogNum(n)
 #endif /* HAS_DEBUG_MODE == 1 */
+
+extern void jsSetSave(unsigned addr, unsigned len);

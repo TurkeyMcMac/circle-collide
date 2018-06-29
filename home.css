@@ -6,8 +6,10 @@ body {
 }
 
 input {
-	width: 50px;
 	background-color: lightblue;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
 }
 
 .number {
@@ -15,8 +17,10 @@ input {
 	text-align: right;
 }
 
-#circle-canvas {
-	background-color: lightblue;
+.stat-box {
+	background-color: #e2e2ff;
+	font-size: 12px;
+	padding: 2px;
 }
 
 #canvas-box, #score-list-box {
@@ -24,14 +28,28 @@ input {
 	top: 5px;
 }
 
+#circle-canvas {
+	background-color: lightblue;
+}
+
+#circle-population {
+	width: 3em;
+}
+
+#save-data-box {
+	width: 50em;
+}
+
+#save-data {
+	font-size: 8px;
+	word-wrap: break-word;
+}
+
 #score-list {
 	width: 7em;
 }
 
 #score-list-box {
-	background-color: #e2e2ff;
-	font-size: 12px;
 	left: 1010px;
-	padding: 2px;
 	text-align: center;
 }

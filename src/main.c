@@ -7,6 +7,7 @@
 #include "memset.h"
 #include "neural-net.h"
 #include "random.h"
+#include "save.h"
 #include "vec2d.h"
 #include "world.h"
 
@@ -32,6 +33,7 @@ void next_generation(void)
 	agent_manager_winnow(manager);
 	for (size_t i = 0; i < manager->n_agents; ++i)
 		jsAppendScore(agent_fitness(&manager->agents[i]));
+	save_set(manager->agents[0].mind, AGENT_MIND_SIZE);
 	agent_manager_spread(manager, world);
 }
 

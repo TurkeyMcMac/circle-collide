@@ -12,10 +12,15 @@
 			</canvas>
 			<p>
 				Time left: <span class=number><span id=timer-min>0</span>:<span id=timer-sec>00</span></span>  | 
-				Population: <input class=number id=circle-population type=number>
+				Population: <input class=number id=circle-population type=number>  | 
+				Generations: <span class=number id=generation-num></span>
 			</p>
+			<div class=stat-box id=save-data-box>
+				<p><u>BEST GENOME</u></p>
+				<p id=save-data></p>
+			</div>
 		</div>
-		<div id=score-list-box>
+		<div class=stat-box id=score-list-box>
 			<u>LAST SCORES</u>
 			<table class=number id=score-list></table>
 		</div>

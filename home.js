@@ -21,10 +21,12 @@ function main() {
 }
 
 var scoreList = document.getElementById('score-list');
+var generationNum = document.getElementById('generation-num');
 
 function nextGeneration() {
 	scoreList.innerHTML = null;
 	wasm.exports._next_generation();
+	++generationNum.innerHTML;
 	resetTimer(nextGeneration);
 }
 
@@ -34,6 +36,7 @@ function initializeWorld(population) {
 	wasm.exports._seed_random(Math.random() * 10000);
 	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
 	wasm.exports._populate_world(population);
+	generationNum.innerHTML = 0;
 }
 
 var timerIntervalId;
@@ -68,11 +71,13 @@ tileSize = Math.min(canvas.width / worldWidth, canvas.height / worldHeight);
 ctx = canvas.getContext('2d');
 ctx.strokeStyle = SENSOR_BLUE;
 
+var saveData = document.getElementById('save-data');
+var memory =  new WebAssembly.Memory({initial: 256});
 var imports = {
 	'env': {
 		'memoryBase': 0,
 		'tableBase': 0,
-		'memory': new WebAssembly.Memory({initial: 256}),
+		'memory': memory,
 		'table': new WebAssembly.Table({
 			initial: 64,
 			element: 'anyfunc',
@@ -111,6 +116,17 @@ var imports = {
 			ctx.stroke();
 		},
 		'_jsLogNum': console.log,
+		'_jsSetSave': function(addr, len) {
+			var string = '';
+			var slice = new Uint8Array(memory.buffer.slice(addr, addr + len));
+			for (i in slice) {
+				var n = slice[i];
+				if (n < 16)
+					string += '0';
+				string += n.toString(16);
+			}
+			saveData.innerHTML = string;
+		},
 	},
 };
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
