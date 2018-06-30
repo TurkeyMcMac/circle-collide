@@ -3,14 +3,21 @@ const SECONDS_PER_GENERATION = 60;
 const SENSOR_BLUE = "#9999ff";
 const CIRCLE_BLUE = "#00003f";
 
-var canvas, ctx;
-
 var wasm;
 
 var worldWidth = 40;
 var worldHeight = 20;
 var tileSize;
 var initialPopulation = 25;
+
+// Elements touched by JavaSript
+var canvas = document.getElementById('circle-canvas'), ctx;
+var generationNum = document.getElementById('generation-num');
+var populationBox = document.getElementById("circle-population");
+var saveData = document.getElementById('save-data');
+var scoreList = document.getElementById('score-list');
+var timerMinDisplay = document.getElementById("timer-min");
+var timerSecDisplay = document.getElementById("timer-sec");
 
 function main() {
 	initializeWorld(initialPopulation);
@@ -19,9 +26,6 @@ function main() {
 		wasm.exports._step_circles();
 	}, 50);
 }
-
-var scoreList = document.getElementById('score-list');
-var generationNum = document.getElementById('generation-num');
 
 function nextGeneration() {
 	scoreList.innerHTML = null;
@@ -59,19 +63,15 @@ function resetTimer(endTrigger) {
 	}, 1000);
 }
 
-var timerMinDisplay = document.getElementById("timer-min");
-var timerSecDisplay = document.getElementById("timer-sec");
 function displayTimer() {
 	timerMinDisplay.innerHTML = timerMin;
 	timerSecDisplay.innerHTML = (timerSec < 10 ? "0" : "") + timerSec;
 }
 
-canvas = document.getElementById('circle-canvas');
 tileSize = Math.min(canvas.width / worldWidth, canvas.height / worldHeight);
 ctx = canvas.getContext('2d');
 ctx.strokeStyle = SENSOR_BLUE;
 
-var saveData = document.getElementById('save-data');
 var memory =  new WebAssembly.Memory({initial: 256});
 var imports = {
 	'env': {
@@ -135,7 +135,6 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
 		main();
 	});
 
-var populationBox = document.getElementById("circle-population");
 populationBox.value = initialPopulation;
 populationBox.addEventListener("keyup", function(e) {
 	if (e.keyCode === KEYCODE_ENTER) {
