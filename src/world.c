@@ -1,7 +1,7 @@
 #include "world.h"
 #include "ealloc.h"
 #include "js-routines.h"
-#include "memset.h"
+#include "mem.h"
 
 struct world *world_new(unsigned width, unsigned height, float tile_size)
 {

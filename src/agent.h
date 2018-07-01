@@ -43,11 +43,15 @@ struct agent_manager {
 	struct agent agents[];
 };
 
+void agent_random(struct agent *self);
+
 static inline int agent_fitness(const struct agent *self)
 {
 	return self->health * (int)self->score;
 }
 
+void agent_mutate(struct agent *restrict self,
+		const struct agent *restrict parent);
 
 struct agent_manager *agent_manager_new(unsigned n_agents);
 

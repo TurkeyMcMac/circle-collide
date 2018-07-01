@@ -4,6 +4,7 @@
 #include "intersector.h"
 #include "js-routines.h"
 #include "math.h"
+#include "mem.h"
 #include "random.h"
 #include "vec2d.h"
 #include "world.h"
@@ -326,6 +327,11 @@ void initialize_module_agent(void)
 	init_sensor_protos(120.0);
 }
 
+void agent_random(struct agent *self)
+{
+	neural_net_random(&mind_proto, self->mind);
+}
+
 struct agent_manager *agent_manager_new(unsigned n_agents)
 {
 	struct agent_manager *am =
@@ -335,7 +341,6 @@ struct agent_manager *agent_manager_new(unsigned n_agents)
 		struct agent *a = &am->agents[n_agents];
 		a->c.info = &agent_info;
 		a->mind = ealloc(AGENT_MIND_SIZE);
-		neural_net_random(&mind_proto, a->mind);
 	}
 	return am;
 }
@@ -370,15 +375,6 @@ static void mutate_mind(signed char *mind, unsigned size, unsigned n_mut)
 	}
 }
 
-static void *memcpy(void *restrict into, const void *restrict from, unsigned n)
-{
-	char *restrict to = into;
-	const char *restrict fr = from;
-	while (n--)
-		to[n] = fr[n];
-	return into;
-}
-
 static void sort_agents(struct agent list[], unsigned length)
 {
 	if (length < 2)
@@ -397,13 +393,19 @@ static void sort_agents(struct agent list[], unsigned length)
 	sort_agents(list + before, length - before);
 }
 
+void agent_mutate(struct agent *restrict self,
+		const struct agent *restrict parent)
+{
+	memcpy(self->mind, parent->mind, AGENT_MIND_SIZE);
+	mutate_mind(self->mind, AGENT_MIND_SIZE, 500);
+}
+
 void agent_manager_winnow(struct agent_manager *self)
 {
 	sort_agents(self->agents, self->n_agents);
 	for (unsigned i = 0; i < self->n_agents / 2; ++i) {
 		struct agent *a = &self->agents[i + self->n_agents / 2];
-		memcpy(a->mind, self->agents[i].mind, AGENT_MIND_SIZE);
-		mutate_mind(a->mind, AGENT_MIND_SIZE, 500);
+		agent_mutate(a, &self->agents[i]);
 	}
 	if (self->n_agents & 1) {
 		memcpy(self->agents[self->n_agents - 1].mind,

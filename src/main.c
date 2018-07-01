@@ -4,7 +4,7 @@
 #include "ealloc.h"
 #include "js-routines.h"
 #include "math.h"
-#include "memset.h"
+#include "mem.h"
 #include "neural-net.h"
 #include "random.h"
 #include "save.h"
@@ -24,6 +24,33 @@ void populate_world(unsigned pop)
 {
 	initialize_module_agent();
 	manager = agent_manager_new(pop);
+	for (unsigned i = 0; i < manager->n_agents; ++i)
+		agent_random(&manager->agents[i]);
+	agent_manager_spread(manager, world);
+}
+
+static signed char genome[AGENT_MIND_SIZE];
+static unsigned genome_write_head = 0;
+
+void init_genome_write_head(void)
+{
+	genome_write_head = 0;
+}
+
+int write_gene(unsigned gene)
+{
+	genome[genome_write_head] = gene;
+	++genome_write_head;
+	return genome_write_head < AGENT_MIND_SIZE;
+}
+
+void populate_world_with_genome(unsigned pop)
+{
+	initialize_module_agent();
+	manager = agent_manager_new(pop);
+	memcpy(manager->agents[0].mind, genome, AGENT_MIND_SIZE);
+	for (unsigned i = 1; i < manager->n_agents; ++i)
+		agent_mutate(&manager->agents[i], &manager->agents[0]);
 	agent_manager_spread(manager, world);
 }
 

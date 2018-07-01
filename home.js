@@ -1,3 +1,4 @@
+const INITIAL_POPULATION = 25;
 const KEYCODE_ENTER = 13;
 const SECONDS_PER_GENERATION = 60;
 const SENSOR_BLUE = "#9999ff";
@@ -8,28 +9,22 @@ var wasm;
 var worldWidth = 40;
 var worldHeight = 20;
 var tileSize;
-var initialPopulation = 25;
 
 // Elements touched by JavaSript
 var canvas = document.getElementById('circle-canvas'), ctx;
 var generationNum = document.getElementById('generation-num');
+var genomeLoader = document.getElementById('load-genome');
 var populationBox = document.getElementById("circle-population");
+var restartButton = document.getElementById('restart-button');
 var saveData = document.getElementById('save-data');
 var scoreList = document.getElementById('score-list');
 var timerMinDisplay = document.getElementById("timer-min");
 var timerSecDisplay = document.getElementById("timer-sec");
-
-function main() {
-	initializeWorld(initialPopulation);
-	setInterval(function() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		wasm.exports._step_circles();
-	}, 50);
-}
+populationBox.value = INITIAL_POPULATION;
 
 function nextGeneration() {
 	scoreList.innerHTML = null;
-	wasm.exports._next_generation();
+	wasm._next_generation();
 	++generationNum.innerHTML;
 	resetTimer(nextGeneration);
 }
@@ -37,9 +32,9 @@ function nextGeneration() {
 function initializeWorld(population) {
 	resetTimer(nextGeneration);
 	displayTimer();
-	wasm.exports._seed_random(Math.random() * 10000);
-	wasm.exports._init_world(worldWidth, worldHeight, tileSize);
-	wasm.exports._populate_world(population);
+	wasm._seed_random(Math.random() * 10000);
+	wasm._init_world(worldWidth, worldHeight, tileSize);
+	wasm._populate_world(population);
 	generationNum.innerHTML = 0;
 }
 
@@ -79,7 +74,7 @@ var imports = {
 		'tableBase': 0,
 		'memory': memory,
 		'table': new WebAssembly.Table({
-			initial: 64,
+			initial: 128,
 			element: 'anyfunc',
 		}),
 		'abort': function() {},
@@ -130,14 +125,31 @@ var imports = {
 	},
 };
 WebAssembly.instantiateStreaming(fetch("main.wasm"), imports)
-	.then(function(wa) {
-		wasm = wa.instance;
-		main();
-	});
+	.then(wa => wasm = wa.instance.exports)
+	.then(_ => setInterval(function() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		wasm._step_circles();
+	}, 50));
 
-populationBox.value = initialPopulation;
-populationBox.addEventListener("keyup", function(e) {
-	if (e.keyCode === KEYCODE_ENTER) {
-		initializeWorld(populationBox.valueAsNumber);
-	}
+function initializeWorldWithGenome(genome, population) {
+	for (var i = 0, gene = genome.slice(0, 2);
+	     gene.length === 2 && wasm._write_gene(parseInt(gene, 16));
+	     i += 2, gene = genome.slice(i, i + 2))
+		;
+	resetTimer(nextGeneration);
+	displayTimer();
+	wasm._seed_random(Math.random() * 10000);
+	wasm._init_world(worldWidth, worldHeight, tileSize);
+	wasm._populate_world_with_genome(population);
+	generationNum.innerHTML = 0;
+}
+
+
+restartButton.addEventListener("click", function(_) {
+	var genome = genomeLoader.value;
+	var population = populationBox.valueAsNumber;
+	if (genome.length > 0)
+		initializeWorldWithGenome(genome, population);
+	else
+		initializeWorld(population);
 });
