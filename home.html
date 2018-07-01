@@ -6,25 +6,25 @@
 		<link rel=stylesheet type=text/css href=home.css />
 	</head>
 	<body>
-		<div id=canvas-box>
-			<canvas id=circle-canvas width=1000 height=500>
-				Canvas where circles are drawn.
-			</canvas>
-			<p>
-				Time left: <span class=number><span id=timer-min>0</span>:<span id=timer-sec>00</span></span>  | 
-				Generations: <span class=number id=generation-num>0</span>  | 
-				<button id=restart-button>START</button>  | 
-				Population: <input class=number id=circle-population type=number>  | 
-				Initial genome: <input id=load-genome placeholder="Paste genome here."></input>
-			</p>
-			<div class=stat-box id=save-data-box>
-				<p><u>BEST GENOME</u></p>
-				<p id=save-data></p>
-			</div>
+		<canvas id=circle-canvas width=1000 height=500>
+			Canvas where circles are drawn.
+		</canvas>
+		<div>
+			Population: <input class=number id=circle-population type=number><br>
+			Initial genome: <input id=load-genome placeholder="Paste genome here"></input><br><br>
+			<button id=restart-button>START</button>
 		</div>
-		<div class=stat-box id=score-list-box>
+		<div>
+			Time left: <span class=number><span id=timer-min>0</span>:<span id=timer-sec>00</span></span><br>
+			Generations: <span class=number id=generation-num>0</span><br>
+		</div>
+		<div id=score-list-box>
 			<u>LAST SCORES</u>
 			<table class=number id=score-list></table>
+		</div>
+		<div id=save-data-box>
+			<p><u>BEST GENOME</u></p>
+			<p id=save-data></p>
 		</div>
 		<script type=text/javascript src=home.js></script>
 	</body>

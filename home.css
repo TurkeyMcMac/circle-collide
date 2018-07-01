@@ -5,11 +5,19 @@ body {
 	font-size: 15px;
 }
 
-input, button {
+button, input {
 	background-color: lightblue;
 	color: inherit;
 	font-family: inherit;
 	font-size: inherit;
+}
+
+div {
+	background-color: #e2e2ff;
+	display: inline-block;
+	font-size: 12px;
+	margin: 5px;
+	padding: 2px;
 }
 
 .number {
@@ -17,23 +25,18 @@ input, button {
 	text-align: right;
 }
 
-.stat-box {
-	background-color: #e2e2ff;
-	font-size: 12px;
-	padding: 2px;
-}
-
-#canvas-box, #score-list-box {
-	position: absolute;
-	top: 5px;
-}
-
 #circle-canvas {
 	background-color: lightblue;
+	float: left;
+	margin: 5px;
 }
 
 #circle-population {
 	width: 3em;
+}
+
+#load-genome {
+	width: 10em;
 }
 
 #save-data-box {
@@ -46,10 +49,11 @@ input, button {
 }
 
 #score-list {
-	width: 7em;
+	width: 15em;
 }
 
 #score-list-box {
-	left: 1010px;
+	overflow-y: scroll;
+	height: 30em;
 	text-align: center;
 }
